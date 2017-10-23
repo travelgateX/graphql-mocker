@@ -20,8 +20,9 @@ yarn run cli
 ```
 
 **Splitter**: Splits a schema into separated files; one for each defined entity. Files are classified by its entity type.
+
 cli:
-```sh
+```
 split <schemaDir> [<splitDir>]
 ```
 Shell:
@@ -30,8 +31,9 @@ yarn run split <schemaDir> [<splitDir>]
 ```
 
 **Merger**: Merges a splitted schema into one. The split must follow the same structure used for the `splitter` tool.
+
 cli:
-```sh
+```
 merge <splitDir> [<schemaDir>] [<overWrite>]
 ```
 Shell:
@@ -40,8 +42,9 @@ yarn run merge <splitDir> [<schemaDir>] [<overWrite>]
 ```
 
 **Faker**: Runs faker for a given schema.
+
 cli:
-```sh
+```
 fak <schemaDir>
 ```
 Shell:
@@ -49,7 +52,8 @@ Shell:
 yarn run fak <schemaDir>
 ```
 
-**Mocker**: Mocks a given schema; 
+**Mocker**: Mocks a given schema; prepares it in Faker.
+
 cli:
 ```sh
 mock <directory> [<apiName>]
@@ -61,7 +65,7 @@ yarn run mock <directory> [<apiName>]
 
 **NOTE:** all of the commands have a help function (--h|--help) where more detailed information is granted.
 
-### Mock use case example:
+## Mock use case example:
 Let's suppose that we want to work on *Transportation*'s API. What we would like to do is to merge all the other schemas into one, fak them, then merge the *Transportation*'s schema and raise again faker with the new *Transportation*'s schema but this time extending all the other schemas (the last faker raised). To achieve this, we need to have a folder with the following structure*:
 
 ```
