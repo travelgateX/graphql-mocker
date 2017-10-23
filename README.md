@@ -14,7 +14,7 @@ yarn global add graphql-faker
 ```
 
 ### Usage
-**CLI**: `Mocker` cli that integrates all the functionalities. Can be runned by typing:
+**cli**:  `Mocker` cli that integrates all the functionalities. Can be runned by typing:
 ```sh
 yarn run cli
 ```
@@ -61,10 +61,10 @@ yarn run mock <directory> [<apiName>]
 
 **NOTE:** all of the commands have a help function (--h|--help) where more detailed information is granted.
 
-
 ### Mock use case example:
 Let's suppose that we want to work on *Transportation*'s API. What we would like to do is to merge all the other schemas into one, fak them, then merge the *Transportation*'s schema and raise again faker with the new *Transportation*'s schema but this time extending all the other schemas (the last faker raised). To achieve this, we need to have a folder with the following structure*:
 
+```
 mocker
  |
  |- APIs
@@ -75,7 +75,8 @@ mocker
      ...
      |- APIn
 
-*Folder names are optional but relevant for the use case recreation.
+(Folder names are user election, these are for use case recreation)
+```
 
 So with this structure, we only need to run the following command:
 ```sh
