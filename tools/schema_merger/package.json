@@ -1,0 +1,8 @@
+{
+  "name": "merger",
+  "version": "1.0.0",
+  "description": "Merges all the .xgql files in one .graphql schema.",
+  "main": "index.js",
+  "author": "ngonzalez",
+  "license": "MIT"
+}

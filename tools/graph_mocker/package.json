@@ -1,0 +1,9 @@
+{
+    "name": "mocker",
+    "version": "1.0.0",
+    "description": "Mocks a GrahQL schema.",
+    "main": "mocker.js",
+    "author": "ngonzalez",
+    "license": "MIT"
+  }
+  

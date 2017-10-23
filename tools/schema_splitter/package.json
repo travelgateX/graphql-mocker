@@ -1,0 +1,8 @@
+{
+  "name": "schema_splitter",
+  "version": "1.0.0",
+  "description": "Splits a GraphQL schema into its components",
+  "main": "index.js",
+  "author": "ngonzalez",
+  "license": "MIT"
+}
