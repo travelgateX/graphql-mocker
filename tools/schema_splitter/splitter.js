@@ -104,8 +104,6 @@ function main(schemaPath, outputPath) {
 
 
     //Write every file
-    resultPath += "/split";
-    if (!fs.existsSync(resultPath)) fs.mkdirSync(resultPath);
     if (!fs.existsSync(resultPath + "/commons")) fs.mkdirSync(resultPath + "/commons");
     writeItems(resultPath, "common", common);
 

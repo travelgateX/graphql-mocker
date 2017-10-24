@@ -23,11 +23,11 @@ yarn run cli
 
 cli:
 ```
-split <schemaDir> [<splitDir>]
+split <schemaPath> [<splitDir>]
 ```
 Shell:
 ```sh
-yarn run split <schemaDir> [<splitDir>]
+yarn run split <schemaPath> [<splitDir>]
 ```
 
 **Merger**: Merges a splitted schema into one. The split must follow the same structure used for the `splitter` tool.
