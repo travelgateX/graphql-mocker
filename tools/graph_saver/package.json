@@ -1,7 +1,7 @@
 {
-    "name": "mocker",
+    "name": "saver",
     "version": "1.0.0",
-    "description": "Mocks a GrahQL schema.",
+    "description": "Saves GrahQL schema/s.",
     "main": "index.js",
     "author": "ngonzalez",
     "license": "MIT"

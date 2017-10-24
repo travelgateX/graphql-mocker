@@ -63,6 +63,19 @@ Shell:
 yarn run mock <directory> [<apiName>]
 ```
 
+**Saver**: Saves mocked schemas (splits them and removes merge files).
+
+cli:
+```sh
+save <directory>
+```
+Shell:
+```sh
+yarn run save <directory>
+```
+
+
+
 **NOTE:** all of the commands have a help function (--h|--help) where more detailed information is granted.
 
 ## Mock use case example:

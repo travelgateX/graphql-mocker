@@ -1,4 +1,4 @@
 ## Ignore Visual Code files
 
 *.vscode
-
+*.graphql

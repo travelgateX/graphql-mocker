@@ -47,6 +47,6 @@ function appendDefinitions(inPath, outFilePath) {
     names.forEach(function (file) {
         if (file.endsWith(".graphql"));
         //Append all files
-        fs.appendFileSync(outFilePath, fs.readFileSync(inPath + file, 'utf-8') + "\n");
+        fs.appendFileSync(outFilePath, fs.readFileSync(inPath + file, 'utf-8'));
     });
 }

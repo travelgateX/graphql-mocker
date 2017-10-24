@@ -55,7 +55,7 @@ function main(schemaPath, outputPath) {
         if (itemName.substr(itemName.length - 1) == "{") itemName = itemName.substr(0, itemName.length - 1);
 
         //Save processing line on buffer
-        currentItem.push(line);
+        currentItem.push(line + "\n");
 
         //If line is a comment, stop processing
         if (line.trim().charAt(0) == '#') continue;
@@ -64,10 +64,10 @@ function main(schemaPath, outputPath) {
         if (keyWord != "scalar") {
             line = fileLines[++i];
             while (line.charAt(0) != '}') {
-                currentItem.push(line);
+                currentItem.push(line + "\n");
                 line = fileLines[++i];
             }
-            currentItem.push(fileLines[i]);
+            currentItem.push(fileLines[i] + "\n");
         }
 
         //Save object on corresponding array
@@ -146,7 +146,7 @@ function writeItems(path, itemType, items) {
 
         //Write element lines
         len = items[x].length;
-        for (var i = 0; i < len; i++) fs.appendFileSync(resultFile, items[x][i] + "\n");
+        for (var i = 0; i < len; i++) fs.appendFileSync(resultFile, items[x][i]);
 
     });
 }

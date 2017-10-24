@@ -5,7 +5,7 @@ module.exports = {
 const splitter = require('../schema_splitter/splitter').main;
 const merger = require('../schema_merger/merger').main;
 const faker = require('../graph_faker/gr_faker').main;
-const { printMockHelp } = require('./help');
+const { printMockerHelp } = require('./help');
 const { join } = require('path');
 const fs = require('fs');
 
@@ -20,14 +20,14 @@ function main(path, apiName) {
     if (!path) { console.log("ERROR: No path was provided."); return; }
     //If --h/--help, show help and exit
     if (path === "--h" || path === "--help") {
-        printMockHelp();
-        process.exit(0);
+        printMockerHelp();
+        return;
     }
 
     //Prepare/Check path
     path = (path.endsWith("/")) ? path : path + "/"; //Add "/" if necessary to avoid furture appends
     if (!fs.existsSync(path)) { console.log("ERROR: Could not find path " + path); return; }
-    if(fs.existsSync(path + "merged_schema.graphql")) fs.unlinkSync(path + "merged_schema.graphql");
+    if (fs.existsSync(path + "merged_schema.graphql")) fs.unlinkSync(path + "merged_schema.graphql");
 
 
     //1. Merge schema/s
@@ -47,13 +47,18 @@ function main(path, apiName) {
 
     //2. Fake merged schema
     faker(path + "merged_schema.graphql", callback);
+    console.log("General schema raised on faker. --> Editor URL: http://localhost:9002/editor")
 
-    //3. Merge API schema
-    merger(apiPath);
+    if (apiName) {
+        //3. Merge API schema
+        merger(apiPath);
 
-    //4. Fake API schema extending merged schema
-    faker(apiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
+        //4. Fake API schema extending merged schema
+        faker(apiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
+        console.log("Extended API raised on faker. --> Editor URL: http://localhost:9003/editor")
+    }
 
+    console.log("\n\nREMEMBER: To save your work, make sure to save it on Faker and run 'save' Mocker's command before commit.");
 }
 
 function callback(text) {

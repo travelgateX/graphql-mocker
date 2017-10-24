@@ -1,11 +1,13 @@
 const { printSplitHelp } = require('./tools/schema_splitter/help');
 const { printMergeHelp } = require('./tools/schema_merger/help');
 const { printFakerHelp } = require('./tools/graph_faker/help');
-const { printMockHelp } = require('./tools/graph_mocker/help');
+const { printMockerHelp } = require('./tools/graph_mocker/help');
+const { printSaverHelp } = require('./tools/graph_saver/help');
 const split = require('./tools/schema_splitter/splitter').main;
 const merge = require('./tools/schema_merger/merger').main;
 const fak = require('./tools/graph_faker/gr_faker').main;
 const mock = require('./tools/graph_mocker/mocker').main;
+const save = require('./tools/graph_saver/saver').main;
 
 console.log("Tip: Type 'help' to see possible commands, or '<command> --h|--help' to see <command>'s help");
 
@@ -30,7 +32,11 @@ stdin.addListener("data", function (d) {
             break;
 
         case "mock":
-            mock(splittedCommand[1], splittedCommand[2])
+            mock(splittedCommand[1], splittedCommand[2]);
+            break;
+
+        case "save":
+            save(splittedCommand[1]);
             break;
 
         case "help":
@@ -38,7 +44,8 @@ stdin.addListener("data", function (d) {
             printSplitHelp();
             printMergeHelp();
             printFakerHelp();
-            printMockHelp();
+            printMockerHelp();
+            printSaverHelp();
             break;
 
         case "q":
