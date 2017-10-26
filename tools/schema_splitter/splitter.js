@@ -5,6 +5,10 @@ module.exports = {
 const fs = require('fs');
 const { printSplitHelp } = require('./help');
 
+//Extendible types
+const extendibles = ["Query", "Mutation", "Search", "Quote", "Booking"];
+
+
 function main(schemaPath, outputPath) {
     //If --h/--help, show help and exit
     if (schemaPath === "--h" || schemaPath === "--help") {
@@ -46,9 +50,9 @@ function main(schemaPath, outputPath) {
         var line = fileLines[i];
         if (line.length <= 1) continue; //Remove empty lines
         var split = line.split(' ');
-        var keyWord = split[0];
         if (!split[1]) continue;
-        var itemName = split[1] === "extend" ? split[2].trim() : split[1].trim();
+        var keyWord = split[0] === "extend" ? split[1].trim() : split[0].trim();
+        var itemName = split[0] === "extend" ? split[2].trim() : split[1].trim();
 
 
         //Fix possible not separated keys
@@ -73,7 +77,7 @@ function main(schemaPath, outputPath) {
         //Save object on corresponding array
         switch (keyWord) {
             case "type":
-                if (itemName === query || itemName === mutation) common[itemName] = currentItem;
+                if (extendibles.indexOf(itemName) > -1) common[itemName] = currentItem;
                 else objects[itemName] = currentItem;
                 break;
             case "interface":
@@ -89,11 +93,6 @@ function main(schemaPath, outputPath) {
                 enums[itemName] = currentItem;
                 break;
             case "schema":
-                //Extract Query and Mutation type names
-                currentItem.forEach(x => {
-                    if (x.indexOf("query") > -1) { query = x.substr(x.indexOf(":") + 1, x.length - 1).trim(); }
-                    else if (x.indexOf("mutation") > -1) { mutation = x.substr(x.indexOf(":") + 1, x.length - 1).trim(); }
-                });
                 common["schema"] = currentItem;
                 break;
         }

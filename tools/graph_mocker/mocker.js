@@ -9,6 +9,9 @@ const { printMockerHelp } = require('./help');
 const { join } = require('path');
 const fs = require('fs');
 
+//Extendible types
+var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking"];
+var extendedTypes = {};
 
 //1. Merge schema/s
 //2. Fake merged schema
@@ -40,8 +43,17 @@ function main(path, apiName) {
     var dirs = getDirectories(path);
     dirs.forEach(function (dir) {
         dir = "./" + dir.replace('\\', '/') + "/";
-        if (dir !== apiPath) merger(dir, path, "false");
+        if (dir !== apiPath) {
+            //Merge schema
+            var extensions = merger(dir, path, "false", "true");
+
+            //Look for extendible definitions and extend them if proceeds 
+            updateExtendibles(extensions);
+        }
     });
+
+    writeExtendibles(path + "merged_schema.graphql");
+
     console.log("Schemas merged.");
 
 
@@ -60,6 +72,41 @@ function main(path, apiName) {
 
     console.log("\n\nREMEMBER: To save your work, make sure to save it on Faker and run 'save' Mocker's command before commit.");
 }
+
+
+function updateExtendibles(extensions) {
+    Object.keys(extensions).forEach(function (i) {
+        if (extendedTypes[i]) {
+            //Merge definitions
+            var value = extendedTypes[i];
+            var j = countLinesUntilDefinition(extensions[i]);
+            value.splice(-2, 2);                                                   //Remove "}"
+            extendedTypes[i] = value.concat(extensions[i].slice(j, extensions[i].length));    //Add new definition except definition line.
+        } else extendedTypes[i] = extensions[i];
+    })
+}
+
+
+function countLinesUntilDefinition(value) {
+    var count = 0;
+    var len = value.length;
+    for (; count < len; count++) {
+        var line = value[count];
+        if (line.length <= 1 || !line.split(' ')[1] || line.startsWith("#")) continue;
+        else break;
+    }
+
+    return ++count;
+}
+
+
+function writeExtendibles(path) {
+    Object.keys(extendedTypes).forEach(function (i) {
+        //Merge file
+        fs.appendFileSync(path, extendedTypes[i].join("\n") + "\n");
+    });
+}
+
 
 function callback(text) {
     console.log(text);
