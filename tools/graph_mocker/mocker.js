@@ -42,10 +42,13 @@ function main(path, apiName) {
     //Iterate through directories (merger will collide all .graphql schemas within every directory that are on the split format, if any)
     var dirs = getDirectories(path);
     dirs.forEach(function (dir) {
-        dir = "./" + dir.replace('\\', '/') + "/";
-        if (dir !== apiPath) {
+        //Get directory name for comparison
+        var dirName = dir.split("\\").slice(-1)[0]; 
+        if (dirName !== apiName) {
+            dir = dir.replace('\\', '/') + "/";
+
             //Merge schema
-            var extensions = merger(dir, path, "false", "true");
+            var extensions = merger(dir, path, "false");
 
             //Look for extendible definitions and extend them if proceeds 
             updateExtendibles(extensions);
@@ -58,12 +61,13 @@ function main(path, apiName) {
 
 
     //2. Fake merged schema
+    console.log(path + "merged_schema.graphql")
     faker(path + "merged_schema.graphql", callback);
     console.log("General schema raised on faker. --> Editor URL: http://localhost:9002/editor")
 
     if (apiName) {
         //3. Merge API schema
-        merger(apiPath);
+        merger(apiPath, null, "true", "true");
 
         //4. Fake API schema extending merged schema
         faker(apiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");

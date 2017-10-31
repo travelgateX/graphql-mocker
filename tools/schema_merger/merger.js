@@ -11,7 +11,7 @@ const types = ["commons", "interfaces", "objects", "inputs", "scalars", "enums"]
 const extendibles = ["Query", "Mutation", "Search", "Quote", "Booking"];
 var extendedTypes = {};
 
-function main(splitPath, outputPath, overWrite, avoidExpandibles) {
+function main(splitPath, outputPath, overWrite, avoidExtendibles) {
     //If --h/--help, show help and exit
     if (splitPath === "--h" || splitPath === "--help") {
         printMergeHelp();
@@ -38,11 +38,11 @@ function main(splitPath, outputPath, overWrite, avoidExpandibles) {
     for (var i = 0; i < len; i++) {
         var typePath = splitPath + types[i] + "/";
         if (!fs.existsSync(typePath)) continue;
-        if (!appendDefinitions(typePath, outputFilePath, avoidExpandibles)) return;
+        if (!appendDefinitions(typePath, outputFilePath, avoidExtendibles)) return;
     }
 
     //Write extendible definitions (if there is any)
-    if (avoidExpandibles != "true") {
+    if (avoidExtendibles === "true") {
         extendibles.forEach(function (item) {
             if (extendedTypes[item]) {
                 //Merge file
@@ -51,13 +51,13 @@ function main(splitPath, outputPath, overWrite, avoidExpandibles) {
         });
     }
 
-    console.log("Files successfuly merged at " + path + "merged_schema.graphql");
+    console.log("Files successfuly merged at " + outputFilePath);
 
     return extendedTypes;
 }
 
 //Deprecated
-function appendDefinitions(inPath, outFilePath, avoidExpandibles) {
+function appendDefinitions(inPath, outFilePath, avoidExtendibles) {
     //Get file names
     var names = fs.readdirSync(inPath);
 
@@ -87,7 +87,7 @@ function appendDefinitions(inPath, outFilePath, avoidExpandibles) {
                 } else if (keyWord === "extend" || (extendibles.indexOf(itemName) > -1)) {
                     var value = extendedTypes[itemName];
                     value = fileLines;                                                                      //Add as complete definition
-                    if (avoidExpandibles != "true") value[i] = value[i].replace("extend", "");              //Remove "extend" keyword
+                    if (avoidExtendibles != "true") value[i] = value[i].replace("extend", "");              //Remove "extend" keyword
                     extendedTypes[itemName] = value;
                     break;
 
