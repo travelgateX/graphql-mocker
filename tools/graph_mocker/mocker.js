@@ -43,14 +43,14 @@ function main(path, apiName) {
     var dirs = getDirectories(path);
     dirs.forEach(function (dir) {
         //Get directory name for comparison
-        var dirName = dir.split("\\").slice(-1)[0]; 
+        var dirName = dir.split("/").slice(-1)[0];
         if (dirName !== apiName) {
             dir = dir.replace('\\', '/') + "/";
 
             //Merge schema
             var extensions = merger(dir, path, "false");
 
-            //Look for extendible definitions and extend them if proceeds 
+            //Look for extendible definitions and extend them if proceeds
             updateExtendibles(extensions);
         }
     });
