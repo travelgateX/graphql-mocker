@@ -6,7 +6,7 @@ const splitter = require('../schema_splitter/splitter').main;
 const merger = require('../schema_merger/merger').main;
 const faker = require('../graph_faker/gr_faker').main;
 const { printMockerHelp } = require('./help');
-const { join } = require('path');
+const { join, basename } = require('path');
 const fs = require('fs');
 
 //Extendible types
@@ -43,11 +43,10 @@ function main(path, apiName) {
     var dirs = getDirectories(path);
     dirs.forEach(function (dir) {
         //Get directory name for comparison
-        var dirName = dir.split("/").slice(-1)[0];
+        var dirName = basename(dir)
         if (dirName !== apiName) {
-            dir = dir.replace('\\', '/') + "/";
-
             //Merge schema
+            console.log("Proceeding to merge schema at " + dir)
             var extensions = merger(dir, path, "false");
 
             //Look for extendible definitions and extend them if proceeds
