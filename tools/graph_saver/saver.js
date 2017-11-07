@@ -4,10 +4,10 @@ module.exports = {
 
 const splitter = require('../schema_splitter/splitter').main;
 const { printSaverHelp } = require('./help');
-const { join } = require('path');
+const { join, basename } = require('path');
 const fs = require('fs');
 
-function main(path) {
+function main(path, apiName) {
     if (!path) { console.log("ERROR: No path was provided."); return; }
     //If --h/--help, show help and exit
     if (path === "--h" || path === "--help") {
@@ -28,12 +28,14 @@ function main(path) {
 
     //Iterate through directories splitting all merged schemas and deleting them
     dirs.forEach(function (dir) {
-        dir = "./" + dir + "/";
-        var schemaPath = dir + "merged_schema.graphql";
-        if (fs.existsSync(schemaPath)) {
-            
-            splitter(schemaPath, dir);      //Split schema
-            fs.unlinkSync(schemaPath);      //Remove merged
+        //Check if API Name specified and in that case only save that API
+        if (!apiName || apiName === basename(dir)) {
+            dir = "./" + dir + "/";
+            var schemaPath = dir + "merged_schema.graphql";
+            if (fs.existsSync(schemaPath)) {
+                splitter(schemaPath, dir);      //Split schema
+                fs.unlinkSync(schemaPath);      //Remove merged
+            }
         }
     });
     console.log("Schemas splitted.");

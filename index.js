@@ -36,7 +36,7 @@ stdin.addListener("data", function (d) {
             break;
 
         case "save":
-            save(splittedCommand[1]);
+            save(splittedCommand[1], splittedCommand[2]);
             break;
 
         case "help":
