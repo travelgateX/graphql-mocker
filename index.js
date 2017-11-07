@@ -32,7 +32,7 @@ stdin.addListener("data", function (d) {
             break;
 
         case "mock":
-            mock(splittedCommand[1], splittedCommand[2]);
+            mock(splittedCommand[1], splittedCommand[2], splittedCommand[3]);
             break;
 
         case "save":

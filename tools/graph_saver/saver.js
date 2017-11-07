@@ -28,9 +28,10 @@ function main(path) {
 
     //Iterate through directories splitting all merged schemas and deleting them
     dirs.forEach(function (dir) {
-        dir = "./" + dir.replace('\\', '/') + "/";
+        dir = "./" + dir + "/";
         var schemaPath = dir + "merged_schema.graphql";
         if (fs.existsSync(schemaPath)) {
+            
             splitter(schemaPath, dir);      //Split schema
             fs.unlinkSync(schemaPath);      //Remove merged
         }

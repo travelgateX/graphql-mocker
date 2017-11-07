@@ -65,11 +65,11 @@ yarn run fak <schemaDir>
 
 cli:
 ```sh
-mock <directory> [<apiName>]
+mock <directory> [<apiName> [<workingAPIs>]]
 ```
 Shell:
 ```sh
-yarn run mock <directory> [<apiName>]
+yarn run mock <directory> [<apiName> [<workingAPIs>]]
 ```
 
 <br/>

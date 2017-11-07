@@ -19,7 +19,7 @@ var extendedTypes = {};
 //  3. Merge API schema
 //  4. Fake API schema extending merged schema
 
-function main(path, apiName) {
+function main(path, apiName, workingAPIs) {
     if (!path) { console.log("ERROR: No path was provided."); return; }
     //If --h/--help, show help and exit
     if (path === "--h" || path === "--help") {
@@ -32,6 +32,8 @@ function main(path, apiName) {
     if (!fs.existsSync(path)) { console.log("ERROR: Could not find path " + path); return; }
     if (fs.existsSync(path + "merged_schema.graphql")) fs.unlinkSync(path + "merged_schema.graphql");
 
+    //Prepare workingAPIs
+    if (workingAPIs) workingAPIs = workingAPIs.split(",")
 
     //1. Merge schema/s
     //Iterate through all APIs except the named and merge them
@@ -44,7 +46,7 @@ function main(path, apiName) {
     dirs.forEach(function (dir) {
         //Get directory name for comparison
         var dirName = basename(dir)
-        if (dirName !== apiName) {
+        if (dirName !== apiName && (!workingAPIs || workingAPIs.indexOf(dirName) > -1)) {
             //Merge schema
             console.log("Proceeding to merge schema at " + dir)
             var extensions = merger(dir, path, "false");

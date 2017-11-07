@@ -66,10 +66,10 @@ function main(schemaPath, outputPath) {
 
         //Iterate through item and buffer it
         if (keyWord != "scalar") {
-            line = fileLines[++i];
+            line = fileLines[++i].trim();
             while (line.charAt(0) != '}') {
-                currentItem.push(line + "\n");
-                line = fileLines[++i];
+                currentItem.push("  " + line + "\n");
+                line = fileLines[++i].trim();
             }
             currentItem.push(fileLines[i] + "\n");
         }
@@ -103,27 +103,33 @@ function main(schemaPath, outputPath) {
 
 
     //Write every file
-    if (!fs.existsSync(resultPath + "/commons")) fs.mkdirSync(resultPath + "/commons");
+    if (fs.existsSync(resultPath + "/commons")) deleteFolderRecursive(resultPath + "/commons")
+    fs.mkdirSync(resultPath + "/commons");
     writeItems(resultPath, "common", common);
 
     if (objects != {}) {
-        if (!fs.existsSync(resultPath + "/objects")) fs.mkdirSync(resultPath + "/objects");
+        if (fs.existsSync(resultPath + "/objects")) deleteFolderRecursive(resultPath + "/objects")
+        fs.mkdirSync(resultPath + "/objects");
         writeItems(resultPath, "object", objects);
     }
     if (interfaces != {}) {
-        if (!fs.existsSync(resultPath + "/interfaces")) fs.mkdirSync(resultPath + "/interfaces");
+        if (fs.existsSync(resultPath + "/interfaces")) deleteFolderRecursive(resultPath + "/interfaces")
+        fs.mkdirSync(resultPath + "/interfaces");
         writeItems(resultPath, "interface", interfaces);
     }
     if (scalars != {}) {
-        if (!fs.existsSync(resultPath + "/scalars")) fs.mkdirSync(resultPath + "/scalars");
+        if (fs.existsSync(resultPath + "/scalars")) deleteFolderRecursive(resultPath + "/scalars")
+        fs.mkdirSync(resultPath + "/scalars");
         writeItems(resultPath, "scalar", scalars);
     }
     if (inputs != {}) {
-        if (!fs.existsSync(resultPath + "/inputs")) fs.mkdirSync(resultPath + "/inputs");
+        if (fs.existsSync(resultPath + "/inputs")) deleteFolderRecursive(resultPath + "/inputs")
+        fs.mkdirSync(resultPath + "/inputs");
         writeItems(resultPath, "input", inputs);
     }
     if (enums != {}) {
-        if (!fs.existsSync(resultPath + "/enums")) fs.mkdirSync(resultPath + "/enums");
+        if (fs.existsSync(resultPath + "/enums")) deleteFolderRecursive(resultPath + "/enums")
+        fs.mkdirSync(resultPath + "/enums");
         writeItems(resultPath, "enum", enums);
     }
 
@@ -148,4 +154,21 @@ function writeItems(path, itemType, items) {
         for (var i = 0; i < len; i++) fs.appendFileSync(resultFile, items[x][i]);
 
     });
+}
+
+
+//AUX FUNCTION: Deletes a file
+function deleteFolderRecursive (path) {
+    fs.readdirSync(path).forEach(function(file, index){
+      var curPath = path + "/" + file;
+      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { 
+        // Delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+
+    //Remove directory
+    fs.rmdirSync(path);
 }
