@@ -6,7 +6,7 @@ const fs = require('fs');
 const { printSplitHelp } = require('./help');
 
 //Extendible types
-const extendibles = ["Query", "Mutation", "Search", "Quote", "Booking"];
+const extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsXQuery", "AdminMutation", "AdminQuery"];
 
 
 function main(schemaPath, outputPath) {
@@ -135,6 +135,7 @@ function main(schemaPath, outputPath) {
 
 
     console.log("Splitted sorted schema files created on " + resultPath + ".");
+    return 1
 }
 
 
@@ -163,7 +164,7 @@ function deleteFolderRecursive (path) {
       var curPath = path + "/" + file;
       if (fs.lstatSync(curPath).isDirectory()) { // recurse
         deleteFolderRecursive(curPath);
-      } else { 
+      } else {
         // Delete file
         fs.unlinkSync(curPath);
       }
