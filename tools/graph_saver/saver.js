@@ -18,7 +18,12 @@ function main(path, apiName) {
     //Prepare/Check path
     path = (path.endsWith("/")) ? path : path + "/"; //Add "/" if necessary to avoid furture appends
     if (!fs.existsSync(path)) { console.log("ERROR: Could not find path " + path); return; }
-    if (fs.existsSync(path + "merged_schema.graphql")) fs.unlinkSync(path + "merged_schema.graphql");
+    if (fs.existsSync(path + "merged_schema.graphql")) {
+        var schemaPath =path+ "merged_schema.graphql"
+        splitter(schemaPath, path);      //Split schema
+        fs.rename(schemaPath,path + "/merged_schema."+Date.now())
+        // fs.unlinkSync(path + "merged_schema.graphql");
+    }
 
 
     //Get directories
@@ -30,11 +35,14 @@ function main(path, apiName) {
     dirs.forEach(function (dir) {
         //Check if API Name specified and in that case only save that API
         if (!apiName || apiName === basename(dir)) {
-            dir = "./" + dir + "/";
-            var schemaPath = dir + "merged_schema.graphql";
+            dir = "./" + dir;
+            console.log(dir);
+
+            var schemaPath = dir + "/merged_schema.graphql";
             if (fs.existsSync(schemaPath)) {
                 splitter(schemaPath, dir);      //Split schema
-                fs.unlinkSync(schemaPath);      //Remove merged
+                fs.rename(schemaPath,dir + "/merged_schema."+Date.now())
+                // fs.unlinkSync(schemaPath);      //Remove merged
             }
         }
     });
