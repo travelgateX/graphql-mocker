@@ -1,1 +1,0 @@
-Error: Command failed: graphql-faker /home/dcalle/projects/graphql/gmocker/test/entity/merged_schema.graphql -p 9003 -e http://localhost:9002/graphql
