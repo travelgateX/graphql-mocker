@@ -63,6 +63,8 @@ function main(path, apiName, workingAPIs) {
 
     //2. Fake merged schema
     console.log(path + "merged_schema.graphql")
+    normalizeMerged(path,apiName);
+    console.log("1")
     faker(path + "merged_schema.graphql", callback);
     console.log("General schema raised on faker. --> Editor URL: http://localhost:9002/editor")
 
@@ -115,4 +117,37 @@ function writeExtendibles(path) {
 
 function callback(text) {
     console.log(text);
+}
+
+function normalizeMerged(path, api) {
+  if (api==="entity"){
+    var file ="merged_schema.graphql"
+    var content = fs.readFileSync(path + file, 'utf-8');
+    var fileLines = content.toString().split('\n');
+    fs.rename(path+file,path + "merged_schema."+"tmp")
+    var fileOut = fs.createWriteStream(path+file);
+    fileOut.on('error', function(err) { return false/* error handling */ });
+    //Iterate until first significant line
+    for (var i = 0; i < fileLines.length; i++) {
+        var line = fileLines[i];
+        // if (line.length <= 1) continue; //Remove empty lines
+        var split = line.split(' ');
+        // if (!split[1]) continue;
+        for (var j = 0; j < split.length; j++) {
+          var word = split[j].trim();
+          if ((['Access', 'Access!', '[Access]!', '[Access!]', '[Access!]!'].indexOf(word) >= 0) && (word[0]!=="#")) {
+            fileLines[i]='#'+line;
+            console.log(fileLines[i])
+          }
+        }
+        fileOut.write(fileLines[i]+'\n')
+    }
+    fileOut.end();
+
+
+    console.log("Files successfuly normalized");
+
+    return true;
+  }
+  return false;
 }
