@@ -10,7 +10,9 @@ const { join, basename } = require('path');
 const fs = require('fs');
 
 //Extendible types
-var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking"];
+// var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking"];
+var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsXQuery", "AdminMutation", "AdminQuery","MappeaXQuery","MappeaXMutation","InsigthsXQuery","InsigthsXMutation","TransportXQuery","TransportXMutation"];
+
 var extendedTypes = {};
 
 //1. Merge schema/s

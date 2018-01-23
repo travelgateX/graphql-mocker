@@ -8,7 +8,7 @@ const { printMergeHelp } = require('./help')
 //Saved split types
 const types = ["commons", "interfaces", "objects", "inputs", "scalars", "enums"];
 //Extendible types
-const extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsXQuery", "AdminMutation", "AdminQuery"];
+const extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsXQuery", "AdminMutation", "AdminQuery","MappeaXQuery","MappeaXMutation","InsigthsXQuery","InsigthsXMutation"];
 var extendedTypes = {};
 
 function main(splitPath, outputPath, overWrite, avoidExtendibles) {
