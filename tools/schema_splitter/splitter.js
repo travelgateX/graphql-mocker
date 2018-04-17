@@ -6,7 +6,7 @@ const fs = require('fs');
 const { printSplitHelp } = require('./help');
 
 //Extendible types
-const extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsXQuery", "AdminMutation", "AdminQuery","MappeaXQuery","MappeaXMutation","InsigthsXQuery","InsigthsXMutation","TransportXQuery","TransportXMutation"];
+const extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsQuery", "AdminMutation", "AdminQuery","MappeaQuery","MappeaMutation","InsigthsQuery","InsigthsMutation","TransportQuery","TransportMutation"];
 
 
 function main(schemaPath, outputPath) {

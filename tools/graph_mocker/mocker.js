@@ -11,7 +11,7 @@ const fs = require('fs');
 
 //Extendible types
 // var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking"];
-var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsXQuery", "AdminMutation", "AdminQuery","MappeaXQuery","MappeaXMutation","InsigthsXQuery","InsigthsXMutation","TransportXQuery","TransportXMutation"];
+var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsQuery", "AdminMutation", "AdminQuery","MappeaQuery","MappeaMutation","InsigthsQuery","InsigthsMutation","TransportQuery","TransportMutation"];
 
 var extendedTypes = {};
 
