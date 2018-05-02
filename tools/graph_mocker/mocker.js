@@ -9,10 +9,9 @@ const { printMockerHelp } = require('./help');
 const { join, basename } = require('path');
 const fs = require('fs');
 
+var sourceFile = require('../../sourceFile');
 //Extendible types
-// var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking"];
-var extendibles = ["Query", "Mutation", "Search", "Quote", "Booking", "HotelXQuery", "HotelXMutation", "StatsQuery", "AdminMutation", "AdminQuery","MappeaQuery","MappeaMutation","InsigthsQuery","InsigthsMutation","TransportQuery","TransportMutation"];
-
+var extendibles = sourceFile.extendibles;
 var extendedTypes = {};
 
 //1. Merge schema/s
