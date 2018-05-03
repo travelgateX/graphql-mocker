@@ -8,6 +8,7 @@ const { printMergeHelp } = require('./help')
 //Saved split types
 const types = ["commons", "interfaces", "objects", "inputs", "scalars", "enums"];
 //Extendible types
+var sourceFile = require('../../sourceFile');
 var extendibles = sourceFile.extendibles;
 var extendedTypes = {};
 

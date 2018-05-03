@@ -6,6 +6,7 @@ const fs = require('fs');
 const { printSplitHelp } = require('./help');
 
 //Extendible types
+var sourceFile = require('../../sourceFile');
 var extendibles = sourceFile.extendibles;
 
 function main(schemaPath, outputPath) {
