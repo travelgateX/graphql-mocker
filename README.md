@@ -121,9 +121,4 @@ extend it for the second fak based on "TransportationAPI"'s folder.
 As you may know, "extend" clause permits to add some particularities to types existing on the extending schema. For maintenance purposes we will only permit extending certain types from Gateway API (list above). If you extend any other type , you will get an error when running the "save" procedure.
 <br/>
 
-### List of extendible types:
-* Query
-* Mutation
-* Search
-* Quote
-* Booking
+[List of extendible types](sourceFile.js)
