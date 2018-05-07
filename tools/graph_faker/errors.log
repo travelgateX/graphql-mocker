@@ -1,1 +1,0 @@
-Error: Command failed: graphql-faker /home/dcalle/projects/graphql/gw180417/mappea/merged_schema.graphql -p 9003 -e http://localhost:9002/graphql
