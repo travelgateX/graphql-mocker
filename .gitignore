@@ -3,4 +3,5 @@
 *.vscode
 *.graphql
 test
-*.log
+#*.log
+#*/*log
