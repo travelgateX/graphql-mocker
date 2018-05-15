@@ -1,10 +1,9 @@
 {
   "name": "graphql-mocker",
-  "version": "1.3.1",
-  "description": "Tool for GraphQL schema managing.",
+  "version": "1.3.3",
+  "description": "Tool for GraphQL schema managing and split it. USe GraphQl-Faker",
   "main": "index.js",
-  "author": "nicogonmu",
-  "license": "MIT",
+  "bin": "index.js",
   "scripts": {
     "cli": "node index.js",
     "split": "node tools/schema_splitter/index.js",
@@ -12,5 +11,21 @@
     "fak": "node tools/graph_faker/index.js",
     "mock": "node tools/graph_mocker/index.js",
     "save": "node tools/graph_saver/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/travelgateX/graphql-mocker.git"
+  },
+  "author": "TravegateX <info@travelgatex.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/travelgateX/graphql-mocker/issues"
+  },
+  "homepage": "https://github.com/travelgateX/graphql-mocker#readme",
+  "devDependencies": {
+    "graphql-faker": "1.7.3"
+  },
+  "dependencies": {
+    "graphql-faker": "1.7.3"
   }
 }
