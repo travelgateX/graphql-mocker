@@ -59,11 +59,7 @@ function main(path, apiName, workingAPIs) {
         console.log(dir);
         console.log(dirName);
 
-<<<<<<< HEAD
         if (!dirName.includes(apiName) && (!workingAPIs || workingAPIs.indexOf(dirName) > -1)) {
-=======
-        if (!apiName.includes(dirName) && (!workingAPIs || workingAPIs.indexOf(dirName) > -1)) {
->>>>>>> 6ba884b3cb13e8c99b2fbff25bb4bf537a676d7d
             //Merge schema
             console.log("Proceeding to merge schema at " + dir)
             var extensions = merger(dir, path, "false");
@@ -81,10 +77,6 @@ function main(path, apiName, workingAPIs) {
     //2. Fake merged schema
     console.log(path + "merged_schema.graphql")
     normalizeMerged(path,apiName);
-<<<<<<< HEAD
-    console.log("ppp")
-=======
->>>>>>> 6ba884b3cb13e8c99b2fbff25bb4bf537a676d7d
     faker(path + "merged_schema.graphql", callback);
     console.log("General schema raised on faker. --> Editor URL: http://localhost:9002/editor")
 
