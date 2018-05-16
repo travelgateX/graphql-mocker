@@ -40,14 +40,26 @@ function main(path, apiName, workingAPIs) {
     //Iterate through all APIs except the named and merge them
     var apiPath = path + apiName + "/";
     var isDirectory = source => fs.lstatSync(source).isDirectory();
-    var getDirectories = source => fs.readdirSync(source).map(name => join(source, name)).filter(isDirectory)
+    var getDirectories = source => fs.readdirSync(source).map(name => join(source, name)).filter(isDirectory).filter(function(file) {
+    if(file.indexOf(".git")<0) return file;
+})
 
     //Iterate through directories (merger will collide all .graphql schemas within every directory that are on the split format, if any)
-    var dirs = getDirectories(path);
+    var dirst = getDirectories(path);
+    console.log("Dirst:"+dirst);
+    var dirs= [];
+    dirst.forEach (function (dirt){
+        dirs = dirs.concat(getDirectories(dirt));
+    });
+
+        console.log(apiName);
     dirs.forEach(function (dir) {
         //Get directory name for comparison
-        var dirName = basename(dir)
-        if (dirName !== apiName && (!workingAPIs || workingAPIs.indexOf(dirName) > -1)) {
+        var dirName = basename(dir);
+        console.log(dir);
+        console.log(dirName);
+
+        if (!dirName.includes(apiName) && (!workingAPIs || workingAPIs.indexOf(dirName) > -1)) {
             //Merge schema
             console.log("Proceeding to merge schema at " + dir)
             var extensions = merger(dir, path, "false");
@@ -65,7 +77,7 @@ function main(path, apiName, workingAPIs) {
     //2. Fake merged schema
     console.log(path + "merged_schema.graphql")
     normalizeMerged(path,apiName);
-    console.log("1")
+    console.log("ppp")
     faker(path + "merged_schema.graphql", callback);
     console.log("General schema raised on faker. --> Editor URL: http://localhost:9002/editor")
 

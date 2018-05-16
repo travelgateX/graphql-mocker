@@ -2,9 +2,6 @@ module.exports = {
   extendibles: [
     "Query",
     "Mutation",
-    "Search",
-    "Quote",
-    "Booking",
     "HotelXQuery",
     "HotelXMutation",
     "StatsQuery",
