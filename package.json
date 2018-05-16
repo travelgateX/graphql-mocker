@@ -1,6 +1,6 @@
 {
   "name": "graphql-mocker",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Tool for GraphQL schema managing and split it. USe GraphQl-Faker",
   "main": "index.js",
   "bin": "index.js",
