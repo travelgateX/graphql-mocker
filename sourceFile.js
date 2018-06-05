@@ -12,6 +12,8 @@ module.exports = {
     "InsigthsQuery",
     "InsigthsMutation",
     "TransportQuery",
-    "TransportMutation"
+    "TransportMutation",
+    "PaymentXQuery",
+    "PaymentXMutation"
   ]
 };
