@@ -19,7 +19,7 @@ function main(schemaPath, callback, port, extend) {
     command = (extend) ? command + " -e " + extend : command;
 
     //Run faker
-    prompt(command, function (err, stdout, stderr) {
+    var cmd_faker = prompt(command, function (err, stdout, stderr) {
         if (err) { 
             callback(err); 
             var errorLogPath = __dirname + "/errors.log"
@@ -29,4 +29,5 @@ function main(schemaPath, callback, port, extend) {
         }
         callback(stdout); 
     });
+    return cmd_faker;
 }
