@@ -10,6 +10,7 @@ const Faker = require('../graph_faker/gr_faker.js');
 const { printMockerHelp } = require('./help');
 const { join, basename } = require('path');
 const fs = require('fs');
+var fakers=[];
 
 var sourceFile = require('../../sourceFile');
 //Extendible types
@@ -21,7 +22,6 @@ var extendedTypes = {};
 //OPTIONAL: If any API was specified:
 //  3. Merge API schema
 //  4. Fake API schema extending merged schema
-
 function main(path, apiName, workingAPIs) {
     if (!path) { console.log("ERROR: No path was provided."); return; }
     //If --h/--help, show help and exit
@@ -43,57 +43,128 @@ function main(path, apiName, workingAPIs) {
     var apiPath = path + apiName + "/";
     var isDirectory = source => fs.lstatSync(source).isDirectory();
     var getDirectories = source => fs.readdirSync(source).map(name => join(source, name)).filter(isDirectory).filter(function(file) {
-    if(file.indexOf(".git")<0) return file;
-})
+        if(file.indexOf(".git")<0) return file;
+    })
 
     //Iterate through directories (merger will collide all .graphql schemas within every directory that are on the split format, if any)
     var dirst = getDirectories(path);
     console.log("Dirst:"+dirst);
     var dirs= [];
     dirst.forEach (function (dirt){
-        dirs = dirs.concat(getDirectories(dirt));
+        if (!dirt.includes(apiName)){
+            dirs = dirs.concat(getDirectories(dirt));
+        }else{
+            var apiDirectories = getDirectories(dirt);
+            workingAPIs.forEach(wApi => {
+                apiDirectories.forEach(apiDirs => {
+                    if (!apiDirs.includes(workingAPIs)){
+                        dirs = dirs.concat(apiDirs);
+                    }   
+                });
+                 
+            });
+            
+        }
+
     });
 
-        console.log(apiName);
+    console.log(apiName);
     dirs.forEach(function (dir) {
         //Get directory name for comparison
         var dirName = basename(dir);
         console.log(dir);
         console.log(dirName);
 
-        if (!dirName.includes(apiName) && (!workingAPIs || workingAPIs.indexOf(dirName) > -1)) {
-            //Merge schema
-            console.log("Proceeding to merge schema at " + dir)
-            var extensions = merger(dir, path, "false");
+        console.log("Proceeding to merge schema at " + dir)
+        var extensions = merger(dir, path, "false");
 
-            //Look for extendible definitions and extend them if proceeds
-            updateExtendibles(extensions);
-        }
+        updateExtendibles(extensions);
+        //}
     });
+    if (!fs.existsSync(apiPath)) { fs.mkdirSync(apiPath);} 
 
     writeExtendibles(path + "merged_schema.graphql");
 
     console.log("Schemas merged.");
 
+    var apiFaker=null;
+    var principalSchemeCommand = path + "merged_schema.graphql";
+    var apiQL=null;
+    if (apiName) {
+        if (fs.existsSync(apiPath + "merged_schema.graphql")) fs.unlinkSync(apiPath + "merged_schema.graphql");
+        workingAPIs.forEach(wApi => {
+            //3. Merge API schema
+            merger(apiPath + wApi + "/", apiPath, "false", "true");
+            
+        });
+        apiFaker =  new Faker.Faker(apiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
+        fakers.push(apiFaker);
+        var apiQL= gpl(fs.readFileSync(apiPath + "merged_schema.graphql",'utf8'));
+        var principalQL= gpl(fs.readFileSync(path + "merged_schema.graphql",'utf8'));
+        var circularDependcy = [];
+        principalQL.definitions.forEach(definition => {
+            if (definition.fields) {
+                definition.fields.forEach(field =>{
+                    var targetType=field;
+
+                    while (targetType.type.kind !== "NamedType"){
+                        targetType = targetType.type;
+                    }
+                    var nameType = targetType.type.name.value;
+                    
+                    if (apiQL.definitions.filter(function(element){
+                        return getObjectsNames(element, nameType);
+                    }).length>0){
+                        if (!circularDependcy.includes(nameType)){
+                            circularDependcy.push(nameType);
+                        }
+                        targetType.type.name.value = "mockerTGX";
+                    }
+                });
+            }
+        });
+        var mockerTGX = `
+        type mockerTGX{
+            id:ID!
+        }`;
+        var mockerTGXAST = gpl(mockerTGX);
+        principalQL = graphql.concatAST([principalQL, mockerTGXAST]);
+        console.log( graphql.buildASTSchema(principalQL));
+        fs.writeFileSync(path + "merged_schema.graphql", graphql.printSchema(graphql.buildASTSchema(principalQL)), 'utf8');
+        var hola=0;
+        //4. Fake API schema extending merged schema
+        
+    }
 
     //2. Fake merged schema
     console.log(path + "merged_schema.graphql")
     normalizeMerged(path,apiName);
-    faker(path + "merged_schema.graphql", callback);
+    var principalFaker = new Faker.Faker(principalSchemeCommand, callback);
+    fakers.push(principalFaker);
+
     console.log("General schema raised on faker. --> Editor URL: http://localhost:9002/editor")
-
-    if (apiName) {
-        //3. Merge API schema
-        merger(apiPath, null, "true", "true");
-
-        //4. Fake API schema extending merged schema
-        faker(apiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
-        console.log("Extended API raised on faker. --> Editor URL: http://localhost:9003/editor")
-    }
-
     console.log("\n\nREMEMBER: To save your work, make sure to save it on Faker and run 'save' Mocker's command before commit.");
+    principalFaker.runFaker();
+    if (apiName){
+        console.log("Extended API raised on faker. --> Editor URL: http://localhost:9003/editor");
+        setTimeout(function() {
+            runApiFaker(principalFaker, apiFaker);
+        }, 1000);
+        
+        
+    }
+    return fakers;
 }
 
+function runApiFaker(principalfaker, apifaker){
+    if (!principalfaker.isRunning()){
+        setTimeout(function() {
+            runApiFaker(principalfaker, apifaker);
+        }, 1000);
+    }else{
+        apifaker.runFaker();
+    }
+}
 
 function updateExtendibles(extensions) {
     Object.keys(extensions).forEach(function (i) {
@@ -131,6 +202,12 @@ function writeExtendibles(path) {
 
 function callback(text) {
     console.log(text);
+}
+
+function getObjectsNames(element, targetType) {
+    if (element.name){
+        return element.name.value===targetType;
+    }
 }
 
 function normalizeMerged(path, api) {
