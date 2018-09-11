@@ -1,10 +1,12 @@
 module.exports = {
     main: main
 }
-
+const graphql= require('graphql');
+const gpl = require('graphql-tag');
+const schema = require('graphql/language')
 const splitter = require('../schema_splitter/splitter').main;
 const merger = require('../schema_merger/merger').main;
-const faker = require('../graph_faker/gr_faker').main;
+const Faker = require('../graph_faker/gr_faker.js');
 const { printMockerHelp } = require('./help');
 const { join, basename } = require('path');
 const fs = require('fs');
