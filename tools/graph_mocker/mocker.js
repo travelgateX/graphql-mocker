@@ -3,7 +3,7 @@ module.exports = {
 }
 const graphql= require('graphql');
 const gpl = require('graphql-tag');
-const schema = require('graphql/language')
+
 const splitter = require('../schema_splitter/splitter').main;
 const merger = require('../schema_merger/merger').main;
 const Faker = require('../graph_faker/gr_faker.js');
@@ -91,15 +91,22 @@ function main(path, apiName, workingAPIs) {
     var principalSchemeCommand = path + "merged_schema.graphql";
     var apiQL=null;
     if (apiName) {
-        if (fs.existsSync(apiPath + "merged_schema.graphql")) fs.unlinkSync(apiPath + "merged_schema.graphql");
-        workingAPIs.forEach(wApi => {
-            //3. Merge API schema
-            merger(apiPath + wApi + "/", apiPath, "false", "true");
-            
-        });
-        apiFaker =  new Faker.Faker(apiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
-        fakers.push(apiFaker);
-        var apiQL= gpl(fs.readFileSync(apiPath + "merged_schema.graphql",'utf8'));
+        var wApi =  workingAPIs[0];
+        if (fs.existsSync(apiPath + wApi + "/" +  "merged_schema.graphql")) fs.unlinkSync(apiPath + wApi + "/" + "merged_schema.graphql");
+        if (workingAPIs.length<=0){
+            console.log("ERROR: you must specify a working API");
+            return;
+        }
+        
+        
+        //3. Merge API schema
+        merger(apiPath + wApi + "/", apiPath + wApi + "/", "false", "true");
+        apiFaker =  new Faker.Faker(apiPath + wApi + "/" + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
+        fakers.push(apiFaker);    
+        var apiQL= gpl(fs.readFileSync(apiPath + wApi + "/" + "merged_schema.graphql",'utf8'));
+    
+        
+        
         var principalQL= gpl(fs.readFileSync(path + "merged_schema.graphql",'utf8'));
         var circularDependcy = [];
         principalQL.definitions.forEach(definition => {
