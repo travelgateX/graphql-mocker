@@ -15,5 +15,16 @@ module.exports = {
     "TransportMutation",
     "PaymentXQuery",
     "PaymentXMutation"
-  ]
+  ],
+  astTypes: {
+    EXTEND: "ObjectTypeExtension",
+    EXTEND_DEFINITION: "TypeExtensionDefinition",
+    ENUM: "EnumTypeDefinition",
+    INPUT:"InputObjectTypeDefinition",
+    SCALAR: "ScalarTypeDefinition",
+    OBJECT: "ObjectTypeDefinition",
+    INTERFACE:"InterfaceTypeDefinition",
+    UNION: "UnionTypeDefinition"
+  }
+
 };
