@@ -24,11 +24,9 @@
   "homepage": "https://github.com/travelgateX/graphql-mocker#readme",
   "devDependencies": {
     "graphql": "^14.0.2",
-    "graphql-faker": "1.7.3",
-    "graphql-tag": "^2.9.2"
+    "graphql-faker": "1.7.3"
   },
   "dependencies": {
-    "graphql-faker": "1.7.3",
-    "graphql-tag": "^2.9.2"
+    "graphql-faker": "1.7.3"
   }
 }
