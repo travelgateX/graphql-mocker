@@ -9,9 +9,25 @@
 - Yarn (https://yarnpkg.com/lang/en/docs/install/)
 - NodeJS (https://nodejs.org/es/download/current/)
 - 'graphql-faker' (https://github.com/APIs-guru/graphql-faker):
+
+
 ```sh
 yarn global add graphql-faker
 ```
+
+**IMPORTANT**
+
+Now for use it correctly you need use a graphql-faker from our repository, this is updated to the latest version of graphql
+
+https://github.com/amian84/graphql-faker
+
+For use this, you need local clone the repository, and execute 
+```sh
+sudo npm link
+```
+if you have another version installed please remove before. 
+
+
 <br/>
 <br/>
 

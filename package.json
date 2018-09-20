@@ -6,10 +6,8 @@
   "bin": "index.js",
   "scripts": {
     "cli": "node index.js",
-    "split": "node tools/schema_splitter/index.js",
-    "merge": "node tools/schema_merger/index.js",
-    "fak": "node tools/graph_faker/index.js",
     "mock": "node tools/graph_mocker/index.js",
+    "merge_complete_schema": "node tools/graph_mocker/complete_schema.js",
     "save": "node tools/graph_saver/index.js"
   },
   "repository": {
@@ -23,14 +21,10 @@
   },
   "homepage": "https://github.com/travelgateX/graphql-mocker#readme",
   "devDependencies": {
-    "graphql-faker": "1.7.3",
-    "graphql-tag": "^2.9.2",
-    "graphql": "*"
-
+    "graphql": "^14.0.2",
+    "graphql-faker": "1.7.3"
   },
   "dependencies": {
-    "graphql-faker": "1.7.3",
-    "graphql-tag": "^2.9.2",
-    "graphql": "*"
+    "graphql-faker": "1.7.3"
   }
 }
