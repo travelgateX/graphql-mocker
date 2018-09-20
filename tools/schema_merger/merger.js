@@ -5,16 +5,20 @@ module.exports = {
 
 const convertLegacyDescriptions = require('../schema_splitter/splitter').convertLegacyDescriptions;
 const fs = require('fs');
-const { printMergeHelp } = require('./help')
-const graphqllang= require('graphql/language');
 const graphql= require('graphql');
-//Saved split types
-const types = ["commons", "interfaces", "objects", "inputs", "scalars", "enums"];
-//Extendible types
-var sourceFile = require('../../sourceFile');
-var extendibles = sourceFile.extendibles;
-var extendedTypes = {};
+const graphqllang= require('graphql/language');
+const path = require('path');
+const { printMergeHelp } = require('./help')
 
+const types = ["commons", "interfaces", "objects", "inputs", "scalars", "enums"];
+
+/**
+ * This function iterate all dirs and call to merge the folders
+ * 
+ * @param {dirs to merge the graphql} dirs 
+ * @param {outputpath to save merged file} outputPath 
+ * @param {rewrite the merged file} overWrite 
+ */
 function mergeAST(dirs,outputPath, overWrite){
     var completeAST=null;
     dirs.forEach(function (dir) {
@@ -30,65 +34,96 @@ function mergeAST(dirs,outputPath, overWrite){
     return completeAST;
 }
 
-function main(splitPath, outputPath, overWrite, avoidExtendibles) {
+/**
+ * This function check if type of graphql is empty and added a virtual field in that case
+ * 
+ * @param {Graphql to check empty} _stringGraphql 
+ * @param {Name of type to check} _name 
+ */
+function checkAndAddVirtualField(_stringGraphql, _name){
+    var astFile = null;
+    var regExp = new RegExp(_name + "\s*?{(.*?)}", "is");
+    var matches = _stringGraphql.match(regExp);
+    if (matches.length>1 && matches[1].replace(/(\r\n\t|\n|\s|\r\t)/gm,"")===""){
+        regExp = new RegExp("(" + _name + "\s*?{).*?(})", "is");
+        _stringGraphql=_stringGraphql.replace(regExp, '$1xtgVirtual:Boolean$2');
+    }
+    try{
+        astFile = graphqllang.parse(_stringGraphql);
+    }catch(error){
+        console.log("Fail parsing file: " + file + " Error: " + error.message);
+    }
+    return astFile;
+}
+
+/**
+ * This function iterate of _files, parse to AST, convert legacy description to new sytnax and concat all AST
+ * 
+ * @param {List of files} _files 
+ * @param {Type path of file} _pathFile 
+ */
+function iterateFiles(_files, _pathFile){
+    var typeAST = null
+    _files.forEach(function (file) {
+        if (file.endsWith(".graphql")) {
+            try {
+                var name = file.split("_")[1].split(".")[0];
+                var contentFile = fs.readFileSync(_pathFile + file).toString();
+                var astFile=null;
+                try {
+                    astFile = graphqllang.parse(contentFile); 
+                } catch (error) {
+                    astFile = checkAndAddVirtualField(contentFile, name);
+                    
+                }
+                if (astFile!==null){
+                    astFile.definitions.forEach(definition => {
+                        convertLegacyDescriptions(definition);
+                    });
+                    typeAST=typeAST!==null?graphql.concatAST([typeAST, astFile]): astFile;
+                }
+            } catch (error) {
+                console.log("The file '" + file + "' doesnt have a correct name (type_Name.graphql)");    
+            }
+        }
+    });
+    return typeAST;
+}
+
+/**
+ * Princpial function, this find all .graphql into the types folders and merge all in one file called merged_schema.graphql
+ * 
+ * @param {path to find all grpahql files} _splitPath 
+ * @param {path to save the merge file} _outputPath 
+ * @param {rewrite the merge file} _overWrite 
+ */
+function main(_splitPath, _outputPath, _overWrite) {
     //If --h/--help, show help and exit
-    if (splitPath === "--h" || splitPath === "--help") {
+    if (_splitPath === "--h" || _splitPath === "--help") {
         printMergeHelp();
         return;
     }
     //If no arguments, print message and return
-    if (!splitPath) {
+    if (!_splitPath) {
         console.error('Please, introduce the path containing the splitted schemas to merge as first argument.');
         return;
     }
 
     //Path check and instantiation
-    var path;
-    splitPath = splitPath.endsWith("/") ? splitPath : splitPath + "/"
-    path = outputPath? (outputPath.endsWith("/") ? outputPath : outputPath + "/") : splitPath;
-    var outputFilePath = path + "merged_schema.graphql";
-    if (fs.existsSync(outputFilePath) && overWrite) fs.unlinkSync(path + "merged_schema.graphql");
+    var folderPath;
+    _splitPath = _splitPath.endsWith(path.sep) ? _splitPath : _splitPath + path.sep
+    folderPath = _outputPath? (_outputPath.endsWith(path.sep) ? _outputPath : _outputPath + path.sep) : _splitPath;
+    var outputFilePath = folderPath + "merged_schema.graphql";
+    if (fs.existsSync(outputFilePath) && _overWrite) fs.unlinkSync(folderPath + "merged_schema.graphql");
     var returnAST=null;
     //Traverse all possible types and write non-extendible definitions
     types.forEach(currentType => {
-        var typePath = splitPath + currentType + "/";
+        var typePath = _splitPath + currentType + path.sep;
         if (fs.existsSync( typePath)){
             var files = fs.readdirSync(typePath);
             //Iterate through folder files
-            var typeAST = null;
-            files.forEach(function (file) {
-                if (file.endsWith(".graphql")) {
-                    try {
-                        var name = file.split("_")[1].split(".")[0];
-                        var contentFile = fs.readFileSync(typePath + file).toString();
-                        var astFile=null;
-                        try {
-                            astFile = graphqllang.parse(contentFile); 
-                        } catch (error) {
-                            var regExp = new RegExp(name + "\s*?{(.*?)}", "is");
-                            var matches = contentFile.match(regExp);
-                            if (matches.length>1 && matches[1].replace(/(\r\n\t|\n|\s|\r\t)/gm,"")===""){
-                                regExp = new RegExp("(" + name + "\s*?{).*?(})", "is");
-                                contentFile=contentFile.replace(regExp, '$1xtgVirtual:Boolean$2');
-                            }
-                            try{
-                                astFile = graphqllang.parse(contentFile);
-                            }catch(error){
-                                console.log("Fail parsing file: " + file + " Error: " + error.message);
-                            }
-
-                        }
-                        if (astFile!==null){
-                            astFile.definitions.forEach(definition => {
-                                convertLegacyDescriptions(definition);
-                            });
-                            typeAST=typeAST!==null?graphql.concatAST([typeAST, astFile]): astFile;
-                        }
-                    } catch (error) {
-                        console.log("The file '" + file + "' doesnt have a correct name (type_Name.graphql)");    
-                    }
-                }
-            });
+            var typeAST = iterateFiles(files, typePath);
+            
             if (typeAST){
                 returnAST= returnAST!==null?graphql.concatAST([returnAST,typeAST]): typeAST;
             }

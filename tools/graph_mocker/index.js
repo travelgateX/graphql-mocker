@@ -1,8 +1,13 @@
 const { main } = require('./mocker')
+const { printMockerHelp } = require('./help')
 
+if (!process.argv[2] || !process.argv[3]) { 
+    console.log("ERROR: No path or api was provided.");
+    printMockerHelp(); 
+    return; 
+}
 
-
-var fakers = main(process.argv[2], process.argv[3], process.argv[4]);
+var fakers = main(process.argv[2], process.argv[3]);
 
 function exitHandler(options, exitCode) {
     if (options.cleanup){
