@@ -3,25 +3,27 @@ module.exports = {
     convertLegacyDescriptions: convertLegacyDescriptions
 };
 
+var buildASTSchema = require('graphql/utilities/buildASTSchema');
 const fs = require('fs');
-const { printSplitHelp } = require('./help');
-const graphql= require('graphql');
 const graphqllang= require('graphql/language');
+const path = require('path');
+var sourceFile = require('../../sourceFile');
+const { printSplitHelp } = require('./help');
 
 //Extendible types
-var sourceFile = require('../../sourceFile');
-
-var common = {}, objects = {}, interfaces = {}, scalars = {}, inputs = {}, nonNulls = {}, enums = {}, lists = {}, unions = {};
-var buildASTSchema = require('graphql/utilities/buildASTSchema');
-
-
+var commons = {}, objects = {}, interfaces = {}, scalars = {}, inputs = {}, enums = {};
 var getDescription = buildASTSchema.getDescription;
 
+/**
+ * Return the correct map to store AST by type
+ * 
+ * @param {string type} type 
+ */
 function getConcreteObjectList(type){
     switch(type){
         case sourceFile.astTypes.EXTEND:
         case sourceFile.astTypes.EXTEND_DEFINITION:
-            return common;
+            return commons;
             break;
         case sourceFile.astTypes.ENUM:
             return enums;
@@ -44,7 +46,11 @@ function getConcreteObjectList(type){
     }
 }
 
-
+/**
+ * Get legacy sytnax of description and set as new syntax description
+ * 
+ * @param {AST node} node 
+ */
 function parseDescNode(node){
     if (!node.description){
         var desc =  getDescription(node, {commentDescriptions:true});
@@ -54,6 +60,12 @@ function parseDescNode(node){
         
     }
 }
+
+/**
+ * Convert legacy description to new syntax
+ * 
+ * @param {Node definition} definition 
+ */
 function convertLegacyDescriptions(definition){
     var type = definition.kind;
     parseDescNode(definition);
@@ -78,6 +90,26 @@ function convertLegacyDescriptions(definition){
             break;
     }
 }
+
+/**
+ * Create necesary folders and call writeItems to save the AST Ojbects to files
+ * 
+ * @param {path of api} _path 
+ * @param {type to save (common, object, ...)} _type 
+ * @param {Map of AST objects to save} _astFiles 
+ */
+function writeFilesIntoPath(_path, _type, _astFiles){
+    if (fs.existsSync(_path  + _type)) deleteFolderRecursive(_path +_type)
+    fs.mkdirSync(_path +_type);
+    writeItems(_path, _type, _astFiles);
+}
+
+/**
+ * Parse schema to AST object and iterate his defintion to split into the types depending of definition.kind
+ * 
+ * @param {Path of schema} schemaPath 
+ * @param {Target folder where save the splitted files} outputPath 
+ */
 function main(schemaPath, outputPath) {
     //If --h/--help, show help and exit
     if (schemaPath === "--h" || schemaPath === "--help") {
@@ -88,11 +120,13 @@ function main(schemaPath, outputPath) {
     //If no arguments, print message and return
     if (!schemaPath) {
         console.log('ERROR: Please, introduce schema path as first argument.');
+        printSplitHelp();
         return;
     }
     //If schema file does not exist return error
     if (!fs.existsSync(schemaPath)) {
         console.log('ERROR: Schema file does not exist.');
+        printSplitHelp();
         return;
     }
     //If result path does not exist us project path
@@ -120,51 +154,38 @@ function main(schemaPath, outputPath) {
 
    
     //Write every file
-    if (fs.existsSync(resultPath + "/commons")) deleteFolderRecursive(resultPath + "/commons")
-    fs.mkdirSync(resultPath + "/commons");
-    writeItems(resultPath, "common", common);
-
-    if (objects != {}) {
-        if (fs.existsSync(resultPath + "/objects")) deleteFolderRecursive(resultPath + "/objects")
-        fs.mkdirSync(resultPath + "/objects");
-        writeItems(resultPath, "object", objects);
-    }
-    if (interfaces != {}) {
-        if (fs.existsSync(resultPath + "/interfaces")) deleteFolderRecursive(resultPath + "/interfaces")
-        fs.mkdirSync(resultPath + "/interfaces");
-        writeItems(resultPath, "interface", interfaces);
-    }
-    if (scalars != {}) {
-        if (fs.existsSync(resultPath + "/scalars")) deleteFolderRecursive(resultPath + "/scalars")
-        fs.mkdirSync(resultPath + "/scalars");
-        writeItems(resultPath, "scalar", scalars);
-    }
-    if (inputs != {}) {
-        if (fs.existsSync(resultPath + "/inputs")) deleteFolderRecursive(resultPath + "/inputs")
-        fs.mkdirSync(resultPath + "/inputs");
-        writeItems(resultPath, "input", inputs);
-    }
-    if (enums != {}) {
-        if (fs.existsSync(resultPath + "/enums")) deleteFolderRecursive(resultPath + "/enums")
-        fs.mkdirSync(resultPath + "/enums");
-        writeItems(resultPath, "enum", enums);
-    }
-
-
+    if (commons != {}) writeFilesIntoPath(resultPath, "commons", commons);
+    
+    if (objects != {}) writeFilesIntoPath(resultPath, "objects", objects);
+    
+    if (interfaces != {}) writeFilesIntoPath(resultPath, "interfaces", interfaces);
+    
+    if (scalars != {}) writeFilesIntoPath(resultPath, "scalars", scalars);
+    
+    if (inputs != {}) writeFilesIntoPath(resultPath, "inputs", inputs);
+    
+    if (enums != {}) writeFilesIntoPath(resultPath, "enums", enums);
+    
     console.log("Splitted sorted schema files created on " + resultPath + ".");
     return 1
 }
 
 
-//AUX FUNCTION: Writes a set of similar items into a file.
-function writeItems(path, itemType, items) {
-    var basePath = path + "/" + itemType + "s/" + itemType + "_";
+/**
+ * Save each AST object into the path pass thru args with the correct name
+ * 
+ * @param {folder to save the files} _path 
+ * @param {type of files} _itemType 
+ * @param {map of AST objects to save} _items 
+ */
+function writeItems(_path, _itemType, _items) {
+    var basePath = _path  + _itemType + path.sep + _itemType.slice(0,-1) + "_";
 
     //iterate through items
     
-    Object.keys(items).forEach(function (x) {
+    Object.keys(_items).forEach(function (x) {
         var resultFile = basePath + x + ".graphql";
-        var ASTObject = items[x];
+        var ASTObject = _items[x];
         //Remove file if already exists
         if (fs.existsSync(resultFile)) fs.unlinkSync(resultFile);
         console.log("Writing file: " + resultFile);
@@ -174,10 +195,15 @@ function writeItems(path, itemType, items) {
 
     });
 }
-//AUX FUNCTION: Deletes a file
-function deleteFolderRecursive (path) {
-    fs.readdirSync(path).forEach(function(file, index){
-      var curPath = path + "/" + file;
+
+/**
+ * Delete folders recursive
+ * 
+ * @param {path to delete folders} _path 
+ */
+function deleteFolderRecursive (_path) {
+    fs.readdirSync(_path).forEach(function(file, index){
+      var curPath = _path + "/" + file;
       if (fs.lstatSync(curPath).isDirectory()) { // recurse
         deleteFolderRecursive(curPath);
       } else {
@@ -185,7 +211,6 @@ function deleteFolderRecursive (path) {
         fs.unlinkSync(curPath);
       }
     });
-
     //Remove directory
-    fs.rmdirSync(path);
+    fs.rmdirSync(_path);
 }
