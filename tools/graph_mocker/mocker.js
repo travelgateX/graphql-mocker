@@ -6,7 +6,7 @@ const fs = require('fs');
 const graphql= require('graphql');
 const graphqllang= require('graphql/language');
 const mergeAST = require('../schema_merger/merger').mergeAST;
-const { join } = require('path');
+const path = require('path');
 const { printMockerHelp } = require('./help');
 const sourceFile =  require('../../sourceFile')
 
@@ -15,24 +15,24 @@ var fakers=[];
 /**
  * The function prepare path adding the last dash and removing if exists the merged_schema.graphql into the path
  * 
- * @param {Path to prepare} path 
+ * @param {Path to prepare} _path 
  */
-function preparePaths(path){
+function preparePaths(_path){
     //Prepare/Check path
-    path = (path.endsWith("/")) ? path : path + "/"; //Add "/" if necessary to avoid furture appends
-    if (!fs.existsSync(path)) { console.log("ERROR: Could not find path " + path); return; }
-    if (fs.existsSync(path + "merged_schema.graphql")) fs.unlinkSync(path + "merged_schema.graphql");
+    _path = (_path.endsWith(path.sep)) ? _path : _path + path.sep; //Add "/" if necessary to avoid furture appends
+    if (!fs.existsSync(_path)) { console.log("ERROR: Could not find path " + _path); return; }
+    if (fs.existsSync(_path + "merged_schema.graphql")) fs.unlinkSync(_path + "merged_schema.graphql");
 
 }
 
 /**
  * This functions return a list with all directories from a concrete path
  * 
- * @param {Path where we start collect all dirs} path 
+ * @param {Path where we start collect all dirs} _path 
  */
-function getDirectories(path){
-    var isDirectory = path => fs.lstatSync(path).isDirectory();
-    return fs.readdirSync(path).map(name => join(path, name)).filter(isDirectory).filter(
+function getDirectories(_path){
+    var isDirectory = _path => fs.lstatSync(_path).isDirectory();
+    return fs.readdirSync(_path).map(name => path.join(_path, name)).filter(isDirectory).filter(
         function(file) {
             if(file.indexOf(".git")<0) return file;
         }
@@ -42,18 +42,18 @@ function getDirectories(path){
 /**
  * This function save the AST Object into a merged_schema.graphql file
  * 
- * @param {Path to save the AST} path 
- * @param {AST Object to save} astObject 
+ * @param {Path to save the AST} _path 
+ * @param {AST Object to save} _astObject 
  */
-function saveASTtoFile(path, astObject){
-    if (fs.existsSync(path +  "merged_schema.graphql")) fs.unlinkSync(path + "merged_schema.graphql");
-    fs.writeFileSync(path +  "merged_schema.graphql", graphqllang.print(astObject), 'utf8');
+function saveASTtoFile(_path, _astObject){
+    if (fs.existsSync(_path +  "merged_schema.graphql")) fs.unlinkSync(_path + "merged_schema.graphql");
+    fs.writeFileSync(_path +  "merged_schema.graphql", graphqllang.print(_astObject), 'utf8');
 
 }
 
-function getExtensions(completeAST){
+function getExtensions(_completeAST){
     var extensions = [];
-    completeAST.definitions.forEach(definition => {
+    _completeAST.definitions.forEach(definition => {
         if (definition.kind === sourceFile.astTypes.EXTEND || definition.kind === sourceFile.astTypes.EXTEND_DEFINITION) {
             extensions.push(definition);
         }
@@ -66,11 +66,11 @@ function getExtensions(completeAST){
  * completeAST to any type of apiAST will be replace to new type mockerTGX.
  * This type will be include into the completeAST
  * 
- * @param {Complete AST Object} completeAST 
- * @param {Api AST Object} apiAST 
+ * @param {Complete AST Object} _completeAST 
+ * @param {Api AST Object} _apiAST 
  */
-function cleanCircularDependencies(completeAST, apiAST){
-    completeAST.definitions.forEach(definition => {
+function cleanCircularDependencies(_completeAST, _apiAST){
+    _completeAST.definitions.forEach(definition => {
         if (definition.fields) {
             definition.fields.forEach(field =>{
                 var targetType=field;
@@ -80,7 +80,7 @@ function cleanCircularDependencies(completeAST, apiAST){
                 }
                 var nameType = targetType.type.name.value;
                 
-                if (apiAST.definitions.filter(function(element){
+                if (_apiAST.definitions.filter(function(element){
                     return checkObjectType(element, nameType);
                 }).length>0){
                     targetType.type.name.value = "mockerTGX";
@@ -96,21 +96,21 @@ function cleanCircularDependencies(completeAST, apiAST){
     }`;
     // Added mockerTGX type to complete schema 
     var mockerTGXAST = graphqllang.parse(mockerTGX);
-    completeAST = graphql.concatAST([completeAST, mockerTGXAST]);
-    return completeAST;
+    _completeAST = graphql.concatAST([_completeAST, mockerTGXAST]);
+    return _completeAST;
 }
 
 /**
  * Find the object type with that name into AST Object
  * 
- * @param {AST Object} astObject 
- * @param {Name} name 
+ * @param {AST Object} _astObject 
+ * @param {Name} _name 
  */
-function getNodeTypeByName(astObject, name){
+function getNodeTypeByName(_astObject, _name){
     var node = null
-    for (definition of astObject.definitions) {
+    for (definition of _astObject.definitions) {
         if (definition.kind === sourceFile.astTypes.OBJECT){
-            if (definition.name.value === name){
+            if (definition.name.value === _name){
                 node = definition;
                 break;
             }
@@ -119,35 +119,51 @@ function getNodeTypeByName(astObject, name){
     return node;
 }
 
-
-function deleteTypeByName(astObject, name){
+/**
+ * Find definition type with name into AST object and delete it
+ * 
+ * @param {AST object} _astObject 
+ * @param {Name of type} _name 
+ */
+function deleteTypeByName(_astObject, _name){
     var node = null
-    for (definition of astObject.definitions) {
+    for (definition of _astObject.definitions) {
         if (definition.kind === sourceFile.astTypes.OBJECT){
-            if (definition.name.value === name){
+            if (definition.name.value === _name){
                 node = definition;
                 break;
             }
         }
     }
-    astObject.definitions.splice(astObject.definitions.indexOf(node),1);
-    return astObject;
+    _astObject.definitions.splice(_astObject.definitions.indexOf(node),1);
+    return _astObject;
 }
-function deleteVirtualField(astObject){
+
+/**
+ * Check if the AST object has a virtual field and delete it
+ * 
+ * @param {AST Object to delete virtual field} _astObject 
+ */
+function deleteVirtualField(_astObject){
     var virtualField=null;
-    astObject.fields.forEach(field => {
+    _astObject.fields.forEach(field => {
         if (field.name.value === "xtgVirtual"){
             virtualField = field;
         }        
     });
     if (virtualField){
-        astObject.fields.splice(astObject.fields.indexOf(virtualField),1);
+        _astObject.fields.splice(_astObject.fields.indexOf(virtualField),1);
     }
 }
-
-function hasField(astObject, fieldName){
-    for (field of astObject.fields) {
-        if (field.name.value === fieldName){
+/**
+ * Check if the AST object has a field with name fieldName
+ * 
+ * @param {AST Object to check} _astObject 
+ * @param {Filed name} _fieldName 
+ */
+function hasField(_astObject, _fieldName){
+    for (field of _astObject.fields) {
+        if (field.name.value === _fieldName){
             return true;
         }
     }
@@ -157,14 +173,14 @@ function hasField(astObject, fieldName){
  * Check source type of extensions and added all fields to the original type.
  * Remove exentsion definitions from schema
  * 
- * @param {AST Object with the schema} astObject 
- * @param {List of extensions} extensions 
+ * @param {AST Object with the schema} _astObject 
+ * @param {List of extensions} _extensions 
  */
-function expandExtensions(astObject, extensions){
-    extensions.forEach(extendType => {
+function expandExtensions(_astObject, _extensions){
+    _extensions.forEach(extendType => {
         var name = extendType.name.value;
-        var originalType = getNodeTypeByName(astObject,name);
-        astObject = deleteTypeByName(astObject, name);
+        var originalType = getNodeTypeByName(_astObject,name);
+        _astObject = deleteTypeByName(_astObject, name);
         if (originalType){
             extendType.fields.forEach(field => {
                 if (!hasField(originalType, field.name.value)){
@@ -173,10 +189,10 @@ function expandExtensions(astObject, extensions){
             });
             deleteVirtualField(originalType);
         }
-        astObject.definitions.push(originalType);
-        astObject.definitions.splice(astObject.definitions.indexOf(extendType),1)
+        _astObject.definitions.push(originalType);
+        _astObject.definitions.splice(_astObject.definitions.indexOf(extendType),1)
     });
-    return astObject;
+    return _astObject;
 }
 
 /**
@@ -187,36 +203,37 @@ function expandExtensions(astObject, extensions){
  * - convert legacy description syntax to new syntax inline
  * - call graphql-faker with complete schema and api schema as extension from complete
  * 
- * @param {Path with our schema strucutre} path 
- * @param {Name of api (admin, mappea, ...)} apiName 
- * @param {Name of working api (iam, core, ..)} workingAPI 
+ * @param {Path with our schema strucutre} _path 
+ * @param {Path of api (admin/iam, mappea/mappea, ...)} _apiPath  
  */
-function main(path, apiName, workingAPI) {
-    if (!path) { console.log("ERROR: No path was provided."); return; }
+function main(_path, _apiPath) {
+    if (!_path) { 
+        console.log("ERROR: No path was provided.");
+        printMockerHelp(); 
+        return; 
+    }
+    
     //If --h/--help, show help and exit
-    if (path === "--h" || path === "--help") {
+    if (_path === "--h" || _path === "--help") {
         printMockerHelp();
         return;
     }
-    //Prepare path for complete schema
-    preparePaths(path);
+    //Prepare _path for complete schema
+    preparePaths(_path);
     
     //Get all dirs where find .graphql files except the api/wApi folder
-    var dirst = getDirectories(path);
+    var dirst = getDirectories(_path);
     var dirs= [];
     dirst.forEach (function (dirt){
-        if (!dirt.includes(apiName)){
-            dirs = dirs.concat(getDirectories(dirt));
-        }else{
-            dirs = dirs.concat(getDirectories(dirt).filter(item => {
-                return !item.includes(workingAPI);
-            }));
-        }
-        
+        dirs = dirs.concat(getDirectories(dirt));
     });
+    dirs = dirs.filter(dir => {
+        return !dir.includes(_apiPath);
+    })
+
     
     //Merge complete schema and create AST Object
-    var completeAST = mergeAST(dirs, path, true);
+    var completeAST = mergeAST(dirs, _path, true);
 
     //Get all extensions objects type
     var extensions = getExtensions(completeAST);
@@ -225,42 +242,53 @@ function main(path, apiName, workingAPI) {
     completeAST=expandExtensions(completeAST, extensions);
 
     //Save complete schema
-    saveASTtoFile(path, completeAST);
-    console.log("Schemas merged.");
+    saveASTtoFile(_path, completeAST);
+    console.log("Schemas merged. into: " + _path);
     
-    //Create faker instance for complete schema
-    var principalSchemeCommand = path + "merged_schema.graphql";
-    var principalFaker = new Faker.Faker(principalSchemeCommand, callback);
-    fakers.push(principalFaker);
     //If call with apiName we need merge the api and clean the circular dependencies
-    if (apiName) {
+    if (_apiPath) {
+        //Create faker instance for complete schema
+        var principalSchemeCommand = _path + "merged_schema.graphql";
+        var principalFaker = new Faker.Faker(principalSchemeCommand, callback);
+        fakers.push(principalFaker);
         var apiFaker=null;
         
         //Calculate and prepare path for working with the API
-        var apiPath = path + apiName + "/";
-        if (!fs.existsSync(apiPath)) { fs.mkdirSync(apiPath);} 
-        preparePaths(apiPath + workingAPI);
-        var wApiPath = apiPath + workingAPI + "/";
+        var wApiPath = _path + _apiPath + path.sep;
+        if (!fs.existsSync(wApiPath)) {
+            wApiPath.split(path.sep).reduce((currentPath, folder) => {
+                currentPath += folder + path.sep;
+                if (!fs.existsSync(currentPath)){
+                    fs.mkdirSync(currentPath);
+                }
+                return currentPath;
+            }, ''); 
+        } 
+        preparePaths(wApiPath);
         //Merge API and convert into AST Object
         var apiAST = mergeAST([wApiPath], wApiPath, true);
         console.log("API schemas merged.");
         
-        //Save api AST Object to file
-        saveASTtoFile(wApiPath, apiAST);
+        if (apiAST){
+            //Save api AST Object to file
+            saveASTtoFile(wApiPath, apiAST);
+        }
 
         //Create Faker for API
         apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
         fakers.push(apiFaker);           
         
         //Clean ciruclar dependencies and save the complete AST object
-        completeAST=cleanCircularDependencies(completeAST, apiAST);
-        saveASTtoFile(path, completeAST);
+        if (apiAST){
+            completeAST=cleanCircularDependencies(completeAST, apiAST);
+            saveASTtoFile(_path, completeAST);
+        }
     }
 
-    console.log("General schema raised on faker. --> Editor URL: http://localhost:9002/editor")
-    console.log("\n\nREMEMBER: To save your work, make sure to save it on Faker and run 'save' Mocker's command before commit.");
-    fakers[0].runFaker();
-    if (apiName){
+    if (_apiPath){
+        console.log("General schema raised on faker. --> Editor URL: http://localhost:9002/editor")
+        console.log("\n\nREMEMBER: To save your work, make sure to save it on Faker and run 'save' Mocker's command before commit.");
+        fakers[0].runFaker();
         console.log("Extended API raised on faker. --> Editor URL: http://localhost:9003/editor");
         setTimeout(function() {
             runApiFaker(fakers);
