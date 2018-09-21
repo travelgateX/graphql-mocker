@@ -250,7 +250,7 @@ function main(_path, _apiPath) {
 
     
     //Merge complete schema and create AST Object
-    var completeAST = mergeAST(dirs, _path, true);
+    var completeAST = mergeAST(dirs);
 
     //Get all extensions objects type
     var extensions = getExtensions(completeAST);
@@ -283,7 +283,7 @@ function main(_path, _apiPath) {
         } 
         preparePaths(wApiPath);
         //Merge API and convert into AST Object
-        var apiAST = mergeAST([wApiPath], wApiPath, true);
+        var apiAST = mergeAST([wApiPath]);
         console.log("API schemas merged.");
         
         if (apiAST){
