@@ -78,7 +78,7 @@ function cleanCircularDependencies(_completeAST, _apiAST){
             definition.fields.forEach(field =>{
                 var targetType=field;
 
-                while (targetType.type.kind !== "NamedType"){
+                while (targetType.type.kind !== sourceFile.astTypes.NAME_TYPE){
                     targetType = targetType.type;
                 }
                 var nameType = targetType.type.name.value;
@@ -87,6 +87,20 @@ function cleanCircularDependencies(_completeAST, _apiAST){
                     return checkObjectType(element, nameType);
                 }).length>0){
                     targetType.type.name.value = "mockerTGX";
+                }
+                if (field.arguments){
+                    field.arguments.forEach(arg => {
+                        var a_type = arg.type;
+                        while (!a_type.name){
+                            a_type = a_type.type;
+                        }
+                        var nameType = a_type.name.value;
+                        if (_apiAST.definitions.filter(function(element){
+                            return checkObjectType(element, nameType);
+                        }).length>0){
+                            a_type.type.name.value = "mockerTGX";
+                        }
+                    });
                 }
             });
         }
