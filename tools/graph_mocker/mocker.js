@@ -126,11 +126,10 @@ function cleanCircularDependencies(_completeAST, _apiAST){
 function getNodeTypeByName(_astObject, _name){
     var node = null
     for (definition of _astObject.definitions) {
-        if (definition.kind === sourceFile.astTypes.OBJECT){
-            if (definition.name.value === _name){
-                node = definition;
-                break;
-            }
+       
+        if (definition.name.value === _name){
+            node = definition;
+            break;
         }
     }
     return node;
@@ -235,6 +234,7 @@ function main(_path, _apiPath) {
         printMockerHelp();
         return;
     }
+    
     //Prepare _path for complete schema
     preparePaths(_path);
     
