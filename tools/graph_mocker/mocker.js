@@ -246,7 +246,7 @@ function main(_path, _apiPath) {
     });
     dirs = dirs.filter(dir => {
         return !dir.includes(_apiPath);
-    })
+    });
 
     
     //Merge complete schema and create AST Object
