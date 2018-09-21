@@ -8,6 +8,7 @@
     "cli": "node index.js",
     "mock": "node tools/graph_mocker/index.js",
     "merge_complete_schema": "node tools/graph_mocker/complete_schema.js",
+    "extract_api_schema": "node tools/graph_mocker/extract_api_schema.js",
     "save": "node tools/graph_saver/index.js"
   },
   "repository": {
