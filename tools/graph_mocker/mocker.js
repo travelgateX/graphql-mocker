@@ -1,5 +1,8 @@
 module.exports = {
-    main: main
+    main: main,
+    preparePaths: preparePaths,
+    getNodeTypeByName:getNodeTypeByName,
+    getDirectories:getDirectories
 }
 const Faker = require('../graph_faker/gr_faker.js');
 const fs = require('fs');
