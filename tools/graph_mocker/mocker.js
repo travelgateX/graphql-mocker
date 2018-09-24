@@ -123,11 +123,16 @@ function cleanCircularDependencies(_completeAST, _apiAST){
  * @param {AST Object} _astObject 
  * @param {Name} _name 
  */
-function getNodeTypeByName(_astObject, _name){
+function getNodeTypeByName(_astObject, _name, _onlyObj=false){
     var node = null
     for (definition of _astObject.definitions) {
-       
-        if (definition.name.value === _name){
+        var search=true;
+        if (_onlyObj){
+            if (definition.kind !== sourceFile.astTypes.OBJECT){
+                search=false;
+            }
+        }
+        if (search && definition.name.value === _name){
             node = definition;
             break;
         }
@@ -195,7 +200,7 @@ function hasField(_astObject, _fieldName){
 function expandExtensions(_astObject, _extensions){
     _extensions.forEach(extendType => {
         var name = extendType.name.value;
-        var originalType = getNodeTypeByName(_astObject,name);
+        var originalType = getNodeTypeByName(_astObject, name, true);
         _astObject = deleteTypeByName(_astObject, name);
         if (originalType){
             extendType.fields.forEach(field => {
