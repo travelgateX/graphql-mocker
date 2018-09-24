@@ -271,7 +271,7 @@ function main(_path, _apiPath) {
     if (_apiPath) {
         //Create faker instance for complete schema
         var principalSchemeCommand = _path + "merged_schema.graphql";
-        var principalFaker = new Faker.Faker(principalSchemeCommand, callback);
+        var principalFaker = new Faker.Faker(principalSchemeCommand);
         fakers.push(principalFaker);
         var apiFaker=null;
         
@@ -297,7 +297,7 @@ function main(_path, _apiPath) {
         }
 
         //Create Faker for API
-        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
+        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", "9003", "http://localhost:9002/graphql");
         fakers.push(apiFaker);           
         
         //Clean ciruclar dependencies and save the complete AST object
@@ -336,14 +336,6 @@ function runApiFaker(fakers){
     }
 }
 
-/**
- * Callback function to show the output process of fakers
- * 
- * @param {String with the output from process} text 
- */
-function callback(text) {
-    console.log(text);
-}
 
 /**
  * Checck if the ast node has the name equal to targetType
