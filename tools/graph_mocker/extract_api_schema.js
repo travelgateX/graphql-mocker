@@ -1,5 +1,9 @@
 
-const { preparePaths , getNodeTypeByName, getDirectories} = require('./mocker')
+module.exports = {
+    main: extractApiAndDepends
+}
+const printHelp = require('./help').printExtractApiHelp;
+const { getNodeTypeByName, getDirectories} = require('./mocker')
 const mergeAST = require('../schema_merger/merger').mergeAST;
 const graphqllang= require('graphql/language');
 const graphql= require('graphql');
@@ -7,13 +11,6 @@ const sourceFile =  require('../../sourceFile');
 const path = require ('path');
 const fs = require('fs');
 
-
-if (!process.argv[2] && !process.argv[3]) { 
-    console.log("ERROR: No path or api was provided.");
-    return; 
-}
-
-extractApiAndDepends(process.argv[2], process.argv[3]);
 
 /**
  * Return a list with all definitions names
@@ -240,7 +237,11 @@ function getAllQueryDefsNames(_astObject){
  * @param {Api name} _apiName 
  */
 function extractApiAndDepends(_schemaProject, _apiName){
-
+    if (!_schemaProject && !_apiName) { 
+        console.log("ERROR: No path or api was provided.");
+        printHelp();
+        return; 
+    }
     _schemaProject = (_schemaProject.endsWith(path.sep)) ? _schemaProject : _schemaProject + path.sep; //Add "/" if necessary to avoid furture appends
     if (!fs.existsSync(_schemaProject)) { console.log("ERROR: Could not find path " + _schemaProject); return; }
     

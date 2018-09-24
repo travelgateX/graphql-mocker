@@ -123,11 +123,16 @@ function cleanCircularDependencies(_completeAST, _apiAST){
  * @param {AST Object} _astObject 
  * @param {Name} _name 
  */
-function getNodeTypeByName(_astObject, _name){
+function getNodeTypeByName(_astObject, _name, _onlyObj=false){
     var node = null
     for (definition of _astObject.definitions) {
-       
-        if (definition.name.value === _name){
+        var search=true;
+        if (_onlyObj){
+            if (definition.kind !== sourceFile.astTypes.OBJECT){
+                search=false;
+            }
+        }
+        if (search && definition.name.value === _name){
             node = definition;
             break;
         }
@@ -195,7 +200,7 @@ function hasField(_astObject, _fieldName){
 function expandExtensions(_astObject, _extensions){
     _extensions.forEach(extendType => {
         var name = extendType.name.value;
-        var originalType = getNodeTypeByName(_astObject,name);
+        var originalType = getNodeTypeByName(_astObject, name, true);
         _astObject = deleteTypeByName(_astObject, name);
         if (originalType){
             extendType.fields.forEach(field => {
@@ -266,7 +271,7 @@ function main(_path, _apiPath) {
     if (_apiPath) {
         //Create faker instance for complete schema
         var principalSchemeCommand = _path + "merged_schema.graphql";
-        var principalFaker = new Faker.Faker(principalSchemeCommand, callback);
+        var principalFaker = new Faker.Faker(principalSchemeCommand);
         fakers.push(principalFaker);
         var apiFaker=null;
         
@@ -292,7 +297,7 @@ function main(_path, _apiPath) {
         }
 
         //Create Faker for API
-        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
+        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", "9003", "http://localhost:9002/graphql");
         fakers.push(apiFaker);           
         
         //Clean ciruclar dependencies and save the complete AST object
@@ -331,14 +336,6 @@ function runApiFaker(fakers){
     }
 }
 
-/**
- * Callback function to show the output process of fakers
- * 
- * @param {String with the output from process} text 
- */
-function callback(text) {
-    console.log(text);
-}
 
 /**
  * Checck if the ast node has the name equal to targetType
