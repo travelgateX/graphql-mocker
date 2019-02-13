@@ -38,41 +38,11 @@ yarn run cli
 ```
 <br/>
 
-**Splitter**: Splits a schema into separated files; one for each defined entity. Files are classified by its entity type.
-
-cli:
-```
-split <schemaPath> [<splitDir>]
-```
-Shell:
-```sh
-yarn run split <schemaPath> [<splitDir>]
-```
-
-<br/>
-
-**Merger**: Merges a splitted schema into one. The split must follow the same structure used for the `splitter` tool.
-
-cli:
-```
-merge <splitDir> [<schemaDir>] [<overWrite>]
-```
-Shell:
-```sh
-yarn run merge <splitDir> [<schemaDir>] [<overWrite>]
-```
-
-<br/>
-
 **Faker**: Runs faker for a given schema.
 
 cli:
 ```
-fak <schemaDir>
-```
-Shell:
-```sh
-yarn run fak <schemaDir>
+fake <schemaDir> <port>? <extendSchema>?
 ```
 
 <br/>
@@ -81,11 +51,11 @@ yarn run fak <schemaDir>
 
 cli:
 ```sh
-mock <directory> [<apiName> [<workingAPIs>]]
+mock <directory> <apiPath>
 ```
 Shell:
 ```sh
-yarn run mock <directory> [<apiName> [<workingAPIs>]]
+yarn run mock <directory> <apiPath>
 ```
 
 <br/>
@@ -99,6 +69,30 @@ save <directory>
 Shell:
 ```sh
 yarn run save <directory>
+```
+<br/>
+
+**Extract API Schema**: Saves complete API schema with his dependencies.
+
+cli:
+```sh
+extract_api <directory> <apiPath>
+```
+Shell:
+```sh
+yarn run extract_api_schema <directory> <apiPath>
+```
+<br/>
+
+**Complete Schema**: Saves complete schema.
+
+cli:
+```sh
+complete_schema <directory>
+```
+Shell:
+```sh
+yarn run merge_complete_schema <directory>
 ```
 <br/>
 

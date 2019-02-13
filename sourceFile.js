@@ -24,7 +24,15 @@ module.exports = {
     SCALAR: "ScalarTypeDefinition",
     OBJECT: "ObjectTypeDefinition",
     INTERFACE:"InterfaceTypeDefinition",
-    UNION: "UnionTypeDefinition"
+    UNION: "UnionTypeDefinition",
+    NAME_TYPE: "NamedType"
+  },
+  astBasicTypes:{
+    STRING: "String",
+    BOOL: "Boolean",
+    INT: "Int",
+    FLOAT: "Float",
+    ID: "ID"
   }
 
 };

@@ -1,5 +1,5 @@
-const { main } = require('./mocker')
-const { printMockerHelp } = require('./help')
+const { main } = require('../graph_mocker/mocker')
+const { printMockerHelp } = require('../graph_mocker/help')
 
 if (!process.argv[2] || !process.argv[3]) { 
     console.log("ERROR: No path or api was provided.");
@@ -15,7 +15,7 @@ function exitHandler(options, exitCode) {
         fakers.forEach(faker => {
             var faker_prompt =  faker.getProcess();
             if (faker_prompt!=null){
-                faker_prompt.emit('stop');
+                process.kill(-faker_prompt.pid);
             }
         });
     } 

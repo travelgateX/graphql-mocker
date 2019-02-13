@@ -1,7 +1,15 @@
 const { main } = require('./mocker')
+const printHelp = require('./help').printCompleteSchemaHelp;
 
-if (!process.argv[2]) { 
-    console.log("ERROR: No path or api was provided.");
-    return; 
+function complete_schema(_schema_path){
+    if (!_schema_path) { 
+        console.log("ERROR: No path was provided.");
+        printHelp();
+        return; 
+    }
+    main(_schema_path, null);
 }
-main(process.argv[2], null);
+
+module.exports = {
+    main: complete_schema
+}

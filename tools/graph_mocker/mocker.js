@@ -1,5 +1,8 @@
 module.exports = {
-    main: main
+    main: main,
+    preparePaths: preparePaths,
+    getNodeTypeByName:getNodeTypeByName,
+    getDirectories:getDirectories
 }
 const Faker = require('../graph_faker/gr_faker.js');
 const fs = require('fs');
@@ -75,7 +78,7 @@ function cleanCircularDependencies(_completeAST, _apiAST){
             definition.fields.forEach(field =>{
                 var targetType=field;
 
-                while (targetType.type.kind !== "NamedType"){
+                while (targetType.type.kind !== sourceFile.astTypes.NAME_TYPE){
                     targetType = targetType.type;
                 }
                 var nameType = targetType.type.name.value;
@@ -84,6 +87,20 @@ function cleanCircularDependencies(_completeAST, _apiAST){
                     return checkObjectType(element, nameType);
                 }).length>0){
                     targetType.type.name.value = "mockerTGX";
+                }
+                if (field.arguments){
+                    field.arguments.forEach(arg => {
+                        var a_type = arg.type;
+                        while (!a_type.name){
+                            a_type = a_type.type;
+                        }
+                        var nameType = a_type.name.value;
+                        if (_apiAST.definitions.filter(function(element){
+                            return checkObjectType(element, nameType);
+                        }).length>0){
+                            a_type.type.name.value = "mockerTGX";
+                        }
+                    });
                 }
             });
         }
@@ -106,14 +123,18 @@ function cleanCircularDependencies(_completeAST, _apiAST){
  * @param {AST Object} _astObject 
  * @param {Name} _name 
  */
-function getNodeTypeByName(_astObject, _name){
+function getNodeTypeByName(_astObject, _name, _onlyObj=false){
     var node = null
     for (definition of _astObject.definitions) {
-        if (definition.kind === sourceFile.astTypes.OBJECT){
-            if (definition.name.value === _name){
-                node = definition;
-                break;
+        var search=true;
+        if (_onlyObj){
+            if (definition.kind !== sourceFile.astTypes.OBJECT){
+                search=false;
             }
+        }
+        if (search && definition.name.value === _name){
+            node = definition;
+            break;
         }
     }
     return node;
@@ -179,7 +200,7 @@ function hasField(_astObject, _fieldName){
 function expandExtensions(_astObject, _extensions){
     _extensions.forEach(extendType => {
         var name = extendType.name.value;
-        var originalType = getNodeTypeByName(_astObject,name);
+        var originalType = getNodeTypeByName(_astObject, name, true);
         _astObject = deleteTypeByName(_astObject, name);
         if (originalType){
             extendType.fields.forEach(field => {
@@ -218,6 +239,7 @@ function main(_path, _apiPath) {
         printMockerHelp();
         return;
     }
+    
     //Prepare _path for complete schema
     preparePaths(_path);
     
@@ -229,11 +251,11 @@ function main(_path, _apiPath) {
     });
     dirs = dirs.filter(dir => {
         return !dir.includes(_apiPath);
-    })
+    });
 
     
     //Merge complete schema and create AST Object
-    var completeAST = mergeAST(dirs, _path, true);
+    var completeAST = mergeAST(dirs);
 
     //Get all extensions objects type
     var extensions = getExtensions(completeAST);
@@ -249,7 +271,7 @@ function main(_path, _apiPath) {
     if (_apiPath) {
         //Create faker instance for complete schema
         var principalSchemeCommand = _path + "merged_schema.graphql";
-        var principalFaker = new Faker.Faker(principalSchemeCommand, callback);
+        var principalFaker = new Faker.Faker(principalSchemeCommand);
         fakers.push(principalFaker);
         var apiFaker=null;
         
@@ -266,7 +288,7 @@ function main(_path, _apiPath) {
         } 
         preparePaths(wApiPath);
         //Merge API and convert into AST Object
-        var apiAST = mergeAST([wApiPath], wApiPath, true);
+        var apiAST = mergeAST([wApiPath]);
         console.log("API schemas merged.");
         
         if (apiAST){
@@ -275,7 +297,7 @@ function main(_path, _apiPath) {
         }
 
         //Create Faker for API
-        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", callback, "9003", "http://localhost:9002/graphql");
+        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", "9003", "http://localhost:9002/graphql");
         fakers.push(apiFaker);           
         
         //Clean ciruclar dependencies and save the complete AST object
@@ -314,14 +336,6 @@ function runApiFaker(fakers){
     }
 }
 
-/**
- * Callback function to show the output process of fakers
- * 
- * @param {String with the output from process} text 
- */
-function callback(text) {
-    console.log(text);
-}
 
 /**
  * Checck if the ast node has the name equal to targetType

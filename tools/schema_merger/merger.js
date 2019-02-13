@@ -16,16 +16,14 @@ const types = ["commons", "interfaces", "objects", "inputs", "scalars", "enums"]
  * This function iterate all dirs and call to merge the folders
  * 
  * @param {dirs to merge the graphql} dirs 
- * @param {outputpath to save merged file} outputPath 
- * @param {rewrite the merged file} overWrite 
  */
-function mergeAST(dirs,outputPath, overWrite){
+function mergeAST(dirs){
     var completeAST=null;
     dirs.forEach(function (dir) {
         //Get directory name for comparison
         
         console.log("Proceeding to merge schema at " + dir)
-        var partialAST = main(dir, outputPath, overWrite);
+        var partialAST = main(dir);
         if (partialAST){
             completeAST = completeAST!==null?graphql.concatAST([completeAST, partialAST]):partialAST;
         }
@@ -94,10 +92,8 @@ function iterateFiles(_files, _pathFile){
  * Princpial function, this find all .graphql into the types folders and merge all in one file called merged_schema.graphql
  * 
  * @param {path to find all grpahql files} _splitPath 
- * @param {path to save the merge file} _outputPath 
- * @param {rewrite the merge file} _overWrite 
  */
-function main(_splitPath, _outputPath, _overWrite) {
+function main(_splitPath) {
     //If --h/--help, show help and exit
     if (_splitPath === "--h" || _splitPath === "--help") {
         printMergeHelp();
@@ -110,11 +106,8 @@ function main(_splitPath, _outputPath, _overWrite) {
     }
 
     //Path check and instantiation
-    var folderPath;
     _splitPath = _splitPath.endsWith(path.sep) ? _splitPath : _splitPath + path.sep
-    folderPath = _outputPath? (_outputPath.endsWith(path.sep) ? _outputPath : _outputPath + path.sep) : _splitPath;
-    var outputFilePath = folderPath + "merged_schema.graphql";
-    if (fs.existsSync(outputFilePath) && _overWrite) fs.unlinkSync(folderPath + "merged_schema.graphql");
+    
     var returnAST=null;
     //Traverse all possible types and write non-extendible definitions
     types.forEach(currentType => {
