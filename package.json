@@ -9,7 +9,7 @@
     "mock": "node tools/scripts/mock.js",
     "merge_complete_schema": "node tools/scripts/complete_schema.js",
     "extract_api_schema": "node tools/scripts/extract_api.js",
-    "save": "node tools/scripts/save/index.js"
+    "save": "node tools/scripts/save.js"
   },
   "repository": {
     "type": "git",
