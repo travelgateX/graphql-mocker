@@ -12,6 +12,8 @@ const mergeAST = require('../schema_merger/merger').mergeAST;
 const path = require('path');
 const { printMockerHelp } = require('./help');
 const sourceFile =  require('../../sourceFile')
+const extractApiAndDepends = require('../graph_mocker/extract_api_schema').main;
+
 
 var fakers=[];
 
@@ -240,8 +242,13 @@ function main(_path, _apiPath) {
         return;
     }
     
+    extractApiAndDepends(_path, _apiPath);
+    var wApiPath = _path + _apiPath + path.sep;
+    var principalSchemeCommand = wApiPath +  "api_and_depends_schema.graphql";
+    var principalFaker = new Faker.Faker(principalSchemeCommand);
+    principalFaker.runFaker();
     //Prepare _path for complete schema
-    preparePaths(_path);
+    /*preparePaths(_path);
     
     //Get all dirs where find .graphql files except the api/wApi folder
     var dirst = getDirectories(_path);
@@ -297,7 +304,8 @@ function main(_path, _apiPath) {
         }
 
         //Create Faker for API
-        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", "9003", "http://localhost:9002/graphql");
+        //apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", "9003", "http://localhost:9002/graphql");
+        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql");
         fakers.push(apiFaker);           
         
         //Clean ciruclar dependencies and save the complete AST object
@@ -317,8 +325,10 @@ function main(_path, _apiPath) {
         }, 1000);
         
         
+        
     }
     return fakers;
+    */
 }
 
 /**
