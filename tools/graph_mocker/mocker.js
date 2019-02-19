@@ -247,6 +247,7 @@ function main(_path, _apiPath) {
     var principalSchemeCommand = wApiPath +  "api_and_depends_schema.graphql";
     var principalFaker = new Faker.Faker(principalSchemeCommand);
     principalFaker.runFaker();
+    return [principalFaker];
     //Prepare _path for complete schema
     /*preparePaths(_path);
     
