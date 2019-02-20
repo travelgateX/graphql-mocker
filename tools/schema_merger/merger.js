@@ -42,14 +42,14 @@ function checkAndAddVirtualField(_stringGraphql, _name){
     var astFile = null;
     var regExp = new RegExp(_name + "\s*?{(.*?)}", "is");
     var matches = _stringGraphql.match(regExp);
-    if (matches.length>1 && matches[1].replace(/(\r\n\t|\n|\s|\r\t)/gm,"")===""){
+    if (matches && matches.length>1 && matches[1].replace(/(\r\n\t|\n|\s|\r\t)/gm,"")===""){
         regExp = new RegExp("(" + _name + "\s*?{).*?(})", "is");
         _stringGraphql=_stringGraphql.replace(regExp, '$1xtgVirtual:Boolean$2');
     }
     try{
         astFile = graphqllang.parse(_stringGraphql);
     }catch(error){
-        console.log("Fail parsing file: " + file + " Error: " + error.message);
+        console.log("Fail parsing file: " + _name + " Error: " + error.message);
     }
     return astFile;
 }
