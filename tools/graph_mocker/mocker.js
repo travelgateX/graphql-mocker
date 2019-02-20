@@ -2,7 +2,8 @@ module.exports = {
     main: main,
     preparePaths: preparePaths,
     getNodeTypeByName:getNodeTypeByName,
-    getDirectories:getDirectories
+    getDirectories:getDirectories,
+    mock: mock
 }
 const Faker = require('../graph_faker/gr_faker.js');
 const fs = require('fs');
@@ -219,6 +220,36 @@ function expandExtensions(_astObject, _extensions){
 }
 
 /**
+ * The mock function
+ * This function is in charge of:
+ * - extract api schema
+ * - call graphql-faker with api schema
+ * 
+ * @param {Path with our schema strucutre} _path 
+ * @param {Path of api (admin/iam, mappea/mappea, ...)} _apiPath  
+ */
+function mock(_path, _apiPath) {
+    if (!_path) { 
+        console.log("ERROR: No path was provided.");
+        printMockerHelp(); 
+        return; 
+    }
+    
+    //If --h/--help, show help and exit
+    if (_path === "--h" || _path === "--help") {
+        printMockerHelp();
+        return;
+    }
+    
+    extractApiAndDepends(_path, _apiPath);
+    var wApiPath = _path + _apiPath + path.sep;
+    var principalSchemeCommand = wApiPath +  "api_and_depends_schema.graphql";
+    var principalFaker = new Faker.Faker(principalSchemeCommand);
+    principalFaker.runFaker();
+    return [principalFaker];
+}
+
+/**
  * The main function
  * This function is in charge of:
  * - merge the complete schema, without the API part
@@ -242,14 +273,8 @@ function main(_path, _apiPath) {
         return;
     }
     
-    extractApiAndDepends(_path, _apiPath);
-    var wApiPath = _path + _apiPath + path.sep;
-    var principalSchemeCommand = wApiPath +  "api_and_depends_schema.graphql";
-    var principalFaker = new Faker.Faker(principalSchemeCommand);
-    principalFaker.runFaker();
-    return [principalFaker];
     //Prepare _path for complete schema
-    /*preparePaths(_path);
+    preparePaths(_path);
     
     //Get all dirs where find .graphql files except the api/wApi folder
     var dirst = getDirectories(_path);
@@ -329,7 +354,7 @@ function main(_path, _apiPath) {
         
     }
     return fakers;
-    */
+    
 }
 
 /**
