@@ -81,7 +81,8 @@ function iterateFiles(_files, _pathFile){
                     typeAST=typeAST!==null?graphql.concatAST([typeAST, astFile]): astFile;
                 }
             } catch (error) {
-                console.log("The file '" + file + "' doesnt have a correct name (type_Name.graphql)");    
+                console.log("The file '" + file + "' doesnt have a correct name (type_Name.graphql)");  
+                console.log(error);
             }
         }
     });
