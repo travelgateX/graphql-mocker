@@ -1,4 +1,4 @@
-const { main } = require('../graph_mocker/mocker')
+const { mock } = require('../graph_mocker/mocker')
 const { printMockerHelp } = require('../graph_mocker/help')
 
 if (!process.argv[2] || !process.argv[3]) { 
@@ -7,7 +7,7 @@ if (!process.argv[2] || !process.argv[3]) {
     return; 
 }
 
-var fakers = main(process.argv[2], process.argv[3]);
+var fakers = mock(process.argv[2], process.argv[3]);
 
 function exitHandler(options, exitCode) {
     if (options.cleanup){

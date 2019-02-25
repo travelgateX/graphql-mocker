@@ -17,6 +17,7 @@ module.exports = {
     "PaymentXMutation"
   ],
   astTypes: {
+    SCHEMA_DEFINITION: "SchemaDefinition",
     EXTEND: "ObjectTypeExtension",
     EXTEND_DEFINITION: "TypeExtensionDefinition",
     ENUM: "EnumTypeDefinition",

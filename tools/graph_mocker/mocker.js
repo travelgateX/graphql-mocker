@@ -2,7 +2,8 @@ module.exports = {
     main: main,
     preparePaths: preparePaths,
     getNodeTypeByName:getNodeTypeByName,
-    getDirectories:getDirectories
+    getDirectories:getDirectories,
+    mock: mock
 }
 const Faker = require('../graph_faker/gr_faker.js');
 const fs = require('fs');
@@ -12,6 +13,8 @@ const mergeAST = require('../schema_merger/merger').mergeAST;
 const path = require('path');
 const { printMockerHelp } = require('./help');
 const sourceFile =  require('../../sourceFile')
+const extractApiAndDepends = require('../graph_mocker/extract_api_schema').main;
+
 
 var fakers=[];
 
@@ -217,6 +220,36 @@ function expandExtensions(_astObject, _extensions){
 }
 
 /**
+ * The mock function
+ * This function is in charge of:
+ * - extract api schema
+ * - call graphql-faker with api schema
+ * 
+ * @param {Path with our schema strucutre} _path 
+ * @param {Path of api (admin/iam, mappea/mappea, ...)} _apiPath  
+ */
+function mock(_path, _apiPath) {
+    if (!_path) { 
+        console.log("ERROR: No path was provided.");
+        printMockerHelp(); 
+        return; 
+    }
+    
+    //If --h/--help, show help and exit
+    if (_path === "--h" || _path === "--help") {
+        printMockerHelp();
+        return;
+    }
+    
+    extractApiAndDepends(_path, _apiPath);
+    var wApiPath = _path + _apiPath + path.sep;
+    var principalSchemeCommand = wApiPath +  "api_and_depends_schema.graphql";
+    var principalFaker = new Faker.Faker(principalSchemeCommand);
+    principalFaker.runFaker();
+    return [principalFaker];
+}
+
+/**
  * The main function
  * This function is in charge of:
  * - merge the complete schema, without the API part
@@ -297,7 +330,8 @@ function main(_path, _apiPath) {
         }
 
         //Create Faker for API
-        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", "9003", "http://localhost:9002/graphql");
+        //apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql", "9003", "http://localhost:9002/graphql");
+        apiFaker =  new Faker.Faker(wApiPath + "merged_schema.graphql");
         fakers.push(apiFaker);           
         
         //Clean ciruclar dependencies and save the complete AST object
@@ -317,8 +351,10 @@ function main(_path, _apiPath) {
         }, 1000);
         
         
+        
     }
     return fakers;
+    
 }
 
 /**

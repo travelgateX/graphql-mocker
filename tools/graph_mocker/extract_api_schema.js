@@ -19,12 +19,16 @@ const fs = require('fs');
  */
 function getAllDefintionsName(_astObject){
     var definitionsName = [];
-    _astObject.definitions.forEach(definition => {
-        if (definition.name && definition.kind !== (sourceFile.astTypes.EXTEND|| sourceFile.astTypes.EXTEND_DEFINITION)
-          && !definitionsName.includes(definition.name.value)){
-            definitionsName.push(definition.name.value);
-        }
-    });
+    if (_astObject){
+        _astObject.definitions.forEach(definition => {
+            if (definition.name && definition.kind !== (sourceFile.astTypes.EXTEND|| sourceFile.astTypes.EXTEND_DEFINITION)
+            && !definitionsName.includes(definition.name.value)){
+                definitionsName.push(definition.name.value);
+            }
+        });
+    }else{
+        console.log("hola");
+    }
     return definitionsName;
 }
 

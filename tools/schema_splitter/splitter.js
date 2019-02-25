@@ -141,15 +141,17 @@ function main(schemaPath, outputPath) {
     var ASTFile= graphqllang.parse(fs.readFileSync(schemaPath,'utf8'));
     ASTFile.definitions.forEach(definition => {
         var typeDefinition=  definition.kind;
-        var correctList = getConcreteObjectList(typeDefinition);
-        convertLegacyDescriptions(definition);
-        var name = "";
-        if (definition.kind === sourceFile.astTypes.EXTEND_DEFINITION){
-            name = definition.definition.name.value;
-        }else{
-            name=definition.name.value;
+        if (typeDefinition != sourceFile.astTypes.SCHEMA_DEFINITION){
+            var correctList = getConcreteObjectList(typeDefinition);
+            convertLegacyDescriptions(definition);
+            var name = "";
+            if (definition.kind === sourceFile.astTypes.EXTEND_DEFINITION){
+                name = definition.definition.name.value;
+            }else{
+                name=definition.name.value;
+            }
+            correctList[name] = definition;
         }
-        correctList[name] = definition;
     });
 
    
