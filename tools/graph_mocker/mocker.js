@@ -204,21 +204,21 @@ function expandExtensions(_astObject, _extensions){
     _extensions.forEach(extendType => {
         var name = extendType.name.value;
         var originalType = getNodeTypeByName(_astObject, name, true);
-        _astObject = deleteTypeByName(_astObject, name);
         if (originalType){
-            extendType.fields.forEach(field => {
+            _astObject.definitions.splice(_astObject.definitions.indexOf(originalType),1)
+            //_astObject = deleteTypeByName(_astObject, name);
+            for (let field of extendType.fields) {
                 if (!hasField(originalType, field.name.value)){
                     originalType.fields.push(field);
                 }
-            });
+            };
             deleteVirtualField(originalType);
+            _astObject.definitions.push(originalType);
+            _astObject.definitions.splice(_astObject.definitions.indexOf(extendType),1)
         }
-        _astObject.definitions.push(originalType);
-        _astObject.definitions.splice(_astObject.definitions.indexOf(extendType),1)
     });
     return _astObject;
 }
-
 /**
  * The mock function
  * This function is in charge of:
